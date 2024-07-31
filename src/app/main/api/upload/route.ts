@@ -5,16 +5,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { Readable } from 'stream';
 
-// const octokit = new Octokit({ auth: process.env.NEXT_PUBLIC_GITHUB_TOKEN });
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 export async function POST(request: NextRequest) {
-  console.log(process.env.NEXT_PUBLIC_GITHUB_TOKEN);
   const formData = await parseFormData(request);
 
   const flowerExcel = formData['flowerExcel'] as { name: string, data: Buffer } | undefined;
@@ -24,8 +17,6 @@ export async function POST(request: NextRequest) {
 
   console.log('flowerExcel:', flowerExcel);
   console.log('flowerImagesFiles:', flowerImagesFiles);
-
-
 
   if (!flowerExcel || flowerImagesFiles.length === 0) {
     return NextResponse.json({ message: 'Missing files' }, { status: 400 });
@@ -41,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     await fs.writeFile(flowerExcelPath, flowerExcel.data);
 
-    await octokit.repos.createOrUpdateFileContents({
+    await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
       owner: 'Y-small-space',
       repo: 'flawer',
       path: `DateBase/flawers/${flowerExcel.name}`,
@@ -59,7 +50,7 @@ export async function POST(request: NextRequest) {
 
       await fs.writeFile(filePath, file.data);
 
-      await octokit.repos.createOrUpdateFileContents({
+      await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
         owner: 'Y-small-space',
         repo: 'flawer',
         path: `DateBase/flawers/flowerImages/${file.name}`,

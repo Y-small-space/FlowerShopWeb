@@ -1,9 +1,16 @@
 "use client";
 
-import { AppShell, Group } from "@mantine/core";
+import { AppShell, Group, NavLink } from "@mantine/core";
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { useDisclosure } from "@mantine/hooks";
+import {
+  IconHome2,
+  IconGauge,
+  IconChevronRight,
+  IconActivity,
+  IconCircleOff,
+} from "@tabler/icons-react";
 
 export default function MainLayout({ children }: PropsWithChildren<{}>) {
   const [opened, { toggle }] = useDisclosure();
@@ -16,14 +23,32 @@ export default function MainLayout({ children }: PropsWithChildren<{}>) {
     >
       <AppShell.Header>
         <Group h="100%" px="md">
-          Flawer
+          FlowerShop
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
-        <Link href="/main/uploadPage">PushDate</Link>
-        <Link href="">1</Link>
-        <Link href="">1</Link>
-        <Link href="">1</Link>
+        <NavLink
+          href="/main/uploadPage"
+          label="上传文件"
+          rightSection={
+            <IconChevronRight
+              size="0.8rem"
+              stroke={1.5}
+              className="mantine-rotate-rtl"
+            />
+          }
+        />
+        <NavLink
+          href="/main/uploadPage"
+          label="创建订单"
+          rightSection={
+            <IconChevronRight
+              size="0.8rem"
+              stroke={1.5}
+              className="mantine-rotate-rtl"
+            />
+          }
+        />
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
