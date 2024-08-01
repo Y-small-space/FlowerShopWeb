@@ -127,7 +127,7 @@ async function deleteFilesInDirectory(directoryPath: string) {
   try {
     const response = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
       owner: 'Y-small-space',
-      repo: 'FlowerShop',
+      repo: 'FlowerShopWeb',
       path: directoryPath,
     });
 
