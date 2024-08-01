@@ -4,17 +4,12 @@ import { AppShell, Group, NavLink } from "@mantine/core";
 import { PropsWithChildren } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronRight } from "@tabler/icons-react";
-
 import { ReactNode } from "react";
-
-interface MainPageProps {
-  children?: ReactNode;
-}
 
 export default function MainLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }) {
   const [opened, { toggle }] = useDisclosure();
 
