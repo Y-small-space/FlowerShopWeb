@@ -11,7 +11,7 @@ const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const limit = pLimit(1); // 设置并发限制为 5
 
 export async function POST(request: NextRequest) {
-  console.log(1);
+  console.log(1, process.env.GITHUB_TOKEN);
   const formData = await parseFormData(request);
 
   console.log(formData);

@@ -1,16 +1,9 @@
 "use client";
 
 import { AppShell, Group, NavLink } from "@mantine/core";
-import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { useDisclosure } from "@mantine/hooks";
-import {
-  IconHome2,
-  IconGauge,
-  IconChevronRight,
-  IconActivity,
-  IconCircleOff,
-} from "@tabler/icons-react";
+import { IconChevronRight } from "@tabler/icons-react";
 
 export default function MainLayout({ children }: PropsWithChildren<{}>) {
   const [opened, { toggle }] = useDisclosure();
