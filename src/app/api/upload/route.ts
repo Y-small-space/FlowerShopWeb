@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const zip = new JSZip();
     const zipData = await zip.loadAsync(zipFile.data);
 
-    const uploadPromises = [];
+    const uploadPromises: any = [];
 
     zipData.forEach((relativePath, file) => {
       if (file.dir || relativePath.startsWith('__MACOSX') || relativePath.endsWith('.DS_Store')) {
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     console.log('====================================');
 
     return NextResponse.json({ message: 'Files uploaded successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     return NextResponse.json({ message: 'Upload failed', error: error.message }, { status: 500 });
   }
@@ -96,11 +96,11 @@ async function parseFormData(request: NextRequest) {
   const formData: { [key: string]: any } = {};
 
   return new Promise<any>((resolve, reject) => {
-    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    busboy.on('file', (fieldname: any, file: any, filename: any, encoding: any, mimetype: any) => {
       console.log(`File event: fieldname=${fieldname}, filename=${filename}, encoding=${encoding}, mimetype=${mimetype}`);
 
       const chunks: Buffer[] = [];
-      file.on('data', (data) => {
+      file.on('data', (data: any) => {
         console.log(`Received data chunk of size: ${data.length}`);
         chunks.push(data);
       });

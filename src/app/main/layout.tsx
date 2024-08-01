@@ -5,7 +5,17 @@ import { PropsWithChildren } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronRight } from "@tabler/icons-react";
 
-export default function MainLayout({ children }: PropsWithChildren<{}>) {
+import { ReactNode } from "react";
+
+interface MainPageProps {
+  children?: ReactNode;
+}
+
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [opened, { toggle }] = useDisclosure();
 
   return (
