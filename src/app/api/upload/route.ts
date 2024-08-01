@@ -11,11 +11,7 @@ const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const limit = pLimit(1); // 设置并发限制为 5
 
 export async function POST(request: NextRequest) {
-  console.log(1, process.env.GITHUB_TOKEN);
   const formData = await parseFormData(request);
-
-  console.log(formData);
-
   const flowerExcel = formData['flowerExcel'] as { name: string, data: Buffer } | undefined;
   const zipFile = formData['zipFile'] as { name: string, data: Buffer } | undefined;
 
@@ -40,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const ExcelRes = await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
       owner: 'Y-small-space',
-      repo: 'FlowerShop',
+      repo: 'FlowerShopWeb',
       path: `DateBase/flawers/flower.xlsx`,
       message: 'Upload flowerExcel',
       content: flowerExcel.data.toString('base64'),
@@ -69,7 +65,7 @@ export async function POST(request: NextRequest) {
         console.log('====================================');
         await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
           owner: 'Y-small-space',
-          repo: 'FlowerShop',
+          repo: 'FlowerShopWeb',
           path: githubPath,
           message: `Upload ${relativePath}`,
           content: fileData.toString('base64'),
@@ -148,7 +144,7 @@ async function deleteFilesInDirectory(directoryPath: string) {
           // 删除文件
           const res = await octokit.request('DELETE /repos/{owner}/{repo}/contents/{path}', {
             owner: 'Y-small-space',
-            repo: 'FlowerShop',
+            repo: 'FlowerShopWeb',
             path: file.path,
             message: `Delete ${file.path}`,
             sha: file.sha,
