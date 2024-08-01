@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
 import Busboy from 'busboy';
-import fs from 'fs/promises';
-import path from 'path';
 import JSZip from 'jszip';
 import { Readable } from 'stream';
 import pLimit from 'p-limit';
@@ -12,7 +10,7 @@ const limit = pLimit(1); // 设置并发限制为 5
 
 export async function POST(request: NextRequest) {
   console.log('====================================');
-  console.log(process.env.GITHUB_TOKEN);
+  console.log('密钥L：', process.env.GITHUB_TOKEN);
   console.log('====================================');
   const formData = await parseFormData(request);
   const flowerExcel = formData['flowerExcel'] as { name: string, data: Buffer } | undefined;
@@ -31,11 +29,6 @@ export async function POST(request: NextRequest) {
     }
 
     await deleteFilesInDirectory('DateBase/flawers');
-
-    const flowerExcelPath = path.join('/tmp', String(flowerExcel.name));
-    console.log('flowerExcelPath:', flowerExcelPath);
-
-    await fs.writeFile(flowerExcelPath, flowerExcel.data);
 
     const ExcelRes = await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
       owner: 'Y-small-space',
