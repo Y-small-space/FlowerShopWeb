@@ -3,7 +3,7 @@
 import { AppShell, Group, NavLink } from "@mantine/core";
 import { PropsWithChildren } from "react";
 import { useDisclosure } from "@mantine/hooks";
-import { IconChevronRight } from "@tabler/icons-react";
+import { IconChevronRight, IconGauge } from "@tabler/icons-react";
 import { ReactNode } from "react";
 
 export default function MainLayout({
@@ -37,8 +37,9 @@ export default function MainLayout({
           }
         />
         <NavLink
-          href="/main/uploadPage"
-          label="创建订单"
+          href="#"
+          label="订单"
+          leftSection={<IconGauge size="1rem" stroke={1.5} />}
           rightSection={
             <IconChevronRight
               size="0.8rem"
@@ -46,7 +47,10 @@ export default function MainLayout({
               className="mantine-rotate-rtl"
             />
           }
-        />
+        >
+          <NavLink href="/main/manageOrder" label="管理订单" />
+          <NavLink href="/main/setOrder" label="创建订单" />
+        </NavLink>
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
