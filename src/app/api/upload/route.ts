@@ -9,9 +9,6 @@ const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const limit = pLimit(1); // 设置并发限制为 5
 
 export async function POST(request: NextRequest) {
-  console.log('====================================');
-  console.log('密钥L：', process.env.GITHUB_TOKEN);
-  console.log('====================================');
   const formData = await parseFormData(request);
   const flowerExcel = formData['flowerExcel'] as { name: string, data: Buffer } | undefined;
   const zipFile = formData['zipFile'] as { name: string, data: Buffer } | undefined;

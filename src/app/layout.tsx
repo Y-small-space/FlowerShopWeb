@@ -1,6 +1,7 @@
 import "@mantine/core/styles.css";
 import React from "react";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 
 export const metadata = {
   title: "Flawors",
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: { children: any }) {
         />
       </head>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <AntdRegistry>
+          <MantineProvider>{children}</MantineProvider>
+        </AntdRegistry>
       </body>
     </html>
   );

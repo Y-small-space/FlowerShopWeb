@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Button, Group, FileInput, Alert } from "@mantine/core";
-
+import { Text } from "@mantine/core";
 import { Notification } from "@mantine/core";
 
 const PushDatePage = () => {
@@ -65,6 +65,10 @@ const PushDatePage = () => {
   return (
     <div>
       <Demo />
+      <Text fw={700} size="xl">
+        创建订单
+      </Text>
+      <br />
       <form onSubmit={handleSubmit}>
         <Group
           style={{
