@@ -52,7 +52,7 @@ export default function MainLayout({
           <NavLink href="/main/setOrder" label="创建订单" />
         </NavLink>
       </AppShell.Navbar>
-      <AppShell.Main>{children}</AppShell.Main>
+      <AppShell.Main style={{ overflow: "auto" }}>{children}</AppShell.Main>
     </AppShell>
   );
 }
