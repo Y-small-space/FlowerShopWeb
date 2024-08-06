@@ -3,12 +3,9 @@ import React, { useEffect, useState } from "react";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, Space } from "antd";
 import { Text } from "@mantine/core";
+import { v4 as uuidv4 } from "uuid";
 
 const { Option } = Select;
-
-const onFinish = (values: any) => {
-  console.log("Received values of form:", values);
-};
 
 interface PriceInputProps {
   id?: string;
@@ -37,7 +34,7 @@ const PriceInput: React.FC<PriceInputProps> = (props) => {
 
   const onNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newNumber = parseInt(e.target.value || "0", 10);
-    if (Number.isNaN(number)) {
+    if (Number.isNaN(newNumber)) {
       return;
     }
     if (!("number" in value)) {
@@ -81,6 +78,8 @@ interface OrderFieldProps {
   flowerDate: any;
   species: any[];
   remove: (name: number) => void;
+  In: any;
+  key: any;
 }
 
 const OrderField: React.FC<OrderFieldProps> = ({
@@ -89,6 +88,7 @@ const OrderField: React.FC<OrderFieldProps> = ({
   flowerDate,
   species,
   remove,
+  In,
 }) => {
   const [kind, setKind] = useState<string | undefined>();
   const [inprice, setInPrice] = useState<number | null>();
@@ -101,11 +101,7 @@ const OrderField: React.FC<OrderFieldProps> = ({
   }, [price, quantity]);
 
   return (
-    <Space
-      key={field.key}
-      style={{ display: "flex", marginBottom: 8 }}
-      align="baseline"
-    >
+    <Space style={{ display: "flex", marginBottom: 8 }} align="baseline">
       <Form.Item
         {...restField}
         name={[field.name, "species"]}
@@ -113,7 +109,7 @@ const OrderField: React.FC<OrderFieldProps> = ({
       >
         <Select placeholder="选择花的种类" onChange={(i) => setKind(i)}>
           {species?.map((i) => (
-            <Option key={i} value={i}>
+            <Option key={`${i}`} value={i}>
               {i}
             </Option>
           ))}
@@ -126,12 +122,13 @@ const OrderField: React.FC<OrderFieldProps> = ({
       >
         <Select placeholder="选择花的名称">
           {flowerDate &&
+            kind &&
             flowerDate[kind] &&
             Object.values(flowerDate[kind]) &&
             (Object.values(flowerDate[kind]) as any[]).map(
               (i: any) =>
                 i.Name && (
-                  <Option key={i.Name} value={i.Name}>
+                  <Option key={`${i.Name}`} value={i.Name}>
                     {i?.Name}
                   </Option>
                 )
@@ -145,49 +142,53 @@ const OrderField: React.FC<OrderFieldProps> = ({
       >
         <PriceInput />
       </Form.Item>
-      <Form.Item
-        {...restField}
-        name={[field.name, "jinjia"]}
-        rules={[{ required: true, message: "缺少花的进价" }]}
-        initialValue={0}
-        label="进价"
-      >
-        <Input
-          placeholder="进价"
-          type="text"
-          style={{ width: "4rem" }}
-          onChange={(e) => setInPrice(parseFloat(e.target.value))}
-        />
-      </Form.Item>
-      <Form.Item
-        {...restField}
-        name={[field.name, "danjia"]}
-        rules={[{ required: true, message: "缺少花的单价" }]}
-        initialValue={0}
-        label="单价"
-      >
-        <Input
-          placeholder="单价"
-          type="text"
-          style={{ width: "4rem" }}
-          onChange={(e) => setPrice(parseFloat(e.target.value))}
-        />
-      </Form.Item>
-      <Form.Item
-        {...restField}
-        name={[field.name, "shuliang"]}
-        rules={[{ required: true, message: "缺少花的数量" }]}
-        initialValue={1}
-        label="数量"
-      >
-        <Input
-          type="text"
-          placeholder="数量"
-          style={{ width: "4rem" }}
-          onChange={(e) => setQuantity(parseInt(e.target.value || "1", 10))}
-        />
-      </Form.Item>
-      <Form.Item {...restField}>总价：{total}</Form.Item>
+      {!In && (
+        <>
+          <Form.Item
+            {...restField}
+            name={[field.name, "jinjia"]}
+            rules={[{ required: true, message: "缺少花的进价" }]}
+            initialValue={0}
+            label="进价"
+          >
+            <Input
+              placeholder="进价"
+              type="text"
+              style={{ width: "4rem" }}
+              onChange={(e) => setInPrice(parseFloat(e.target.value))}
+            />
+          </Form.Item>
+          <Form.Item
+            {...restField}
+            name={[field.name, "danjia"]}
+            rules={[{ required: true, message: "缺少花的单价" }]}
+            initialValue={0}
+            label="单价"
+          >
+            <Input
+              placeholder="单价"
+              type="text"
+              style={{ width: "4rem" }}
+              onChange={(e) => setPrice(parseFloat(e.target.value))}
+            />
+          </Form.Item>
+          <Form.Item
+            {...restField}
+            name={[field.name, "shuliang"]}
+            rules={[{ required: true, message: "缺少花的数量" }]}
+            initialValue={1}
+            label="数量"
+          >
+            <Input
+              type="text"
+              placeholder="数量"
+              style={{ width: "4rem" }}
+              onChange={(e) => setQuantity(parseInt(e.target.value || "1", 10))}
+            />
+          </Form.Item>
+          <Form.Item {...restField}>总价：{total}</Form.Item>
+        </>
+      )}
       <MinusCircleOutlined onClick={() => remove(field.name)} />
     </Space>
   );
@@ -196,10 +197,20 @@ const OrderField: React.FC<OrderFieldProps> = ({
 type SetOrderComponetProps = {
   flowerDate: any;
   species: any;
+  packingCount: any;
+  In: any;
+  setFormValue: any;
+  key: any;
 };
 const SerOrderComponet: React.FC<SetOrderComponetProps> = (props) => {
-  const { flowerDate, species } = props;
-
+  const { flowerDate, species, packingCount, In, setFormValue } = props;
+  const [diable, setDisabel] = useState(false);
+  const onFinish = (values: any) => {
+    setDisabel(true);
+    const aForm = { PakingID: packingCount, values: values };
+    setFormValue(aForm);
+    console.log("Received values of form:", aForm);
+  };
   return (
     <div
       style={{
@@ -210,7 +221,7 @@ const SerOrderComponet: React.FC<SetOrderComponetProps> = (props) => {
       }}
     >
       <Text fw={700} size="xl">
-        Paking
+        Paking_ID:{packingCount}
       </Text>
       <br />
       <Form
@@ -218,18 +229,20 @@ const SerOrderComponet: React.FC<SetOrderComponetProps> = (props) => {
         onFinish={onFinish}
         style={{ maxWidth: 900 }}
         autoComplete="off"
+        onChange={() => setDisabel(false)}
       >
         <Form.List name="pack1">
           {(fields, { add, remove }) => (
             <>
-              {fields.map((field, index) => (
+              {fields.map((field) => (
                 <OrderField
-                  key={field.key}
+                  key={fields.length * 10}
                   field={field}
                   restField={field}
                   flowerDate={flowerDate}
                   species={species}
                   remove={remove}
+                  In={In}
                 />
               ))}
               <Form.Item>
@@ -253,13 +266,15 @@ const SerOrderComponet: React.FC<SetOrderComponetProps> = (props) => {
               justifyContent: "space-between",
             }}
           >
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" disabled={diable}>
               保存
             </Button>
-            <Space.Compact style={{ width: "21rem" }}>
-              <Input style={{ width: "30%" }} defaultValue="总重：" />
-              <Input style={{ width: "80%" }} defaultValue="26888888" />
-            </Space.Compact>
+            {!In && (
+              <Space.Compact style={{ width: "21rem" }}>
+                <Input style={{ width: "30%" }} defaultValue="总重：" />
+                <Input style={{ width: "80%" }} defaultValue="26888888" />
+              </Space.Compact>
+            )}
           </div>
         </Form.Item>
       </Form>

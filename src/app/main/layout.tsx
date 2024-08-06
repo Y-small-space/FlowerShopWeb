@@ -48,7 +48,7 @@ export default function MainLayout({
             />
           }
         >
-          <NavLink href="/main/manageOrder" label="管理订单" />
+          <NavLink href="/main/orderList" label="订单列表" />
           <NavLink href="/main/setOrder" label="创建订单" />
         </NavLink>
       </AppShell.Navbar>
