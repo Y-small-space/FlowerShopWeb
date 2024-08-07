@@ -47,12 +47,16 @@ export async function POST(request: NextRequest) {
     date: String(`${year}-${month}-${day}`),
     contents: formValue,
   };
+  console.log(orderData);
+
 
   const { date, contents } = orderData;
 
   const rows: any = [];
+  let count = 1;
   contents.forEach((content: any) => {
-    content.values.pack1.forEach((item: any) => {
+    const values = content.values;
+    values[`Paking${count}`].forEach((item: any) => {
       rows.push({
         PakingID: content.PakingID,
         ...item,
@@ -60,6 +64,7 @@ export async function POST(request: NextRequest) {
         guige_currency: item.guige.currency,
       });
     });
+    count++;
   });
 
   const worksheet = XLSX.utils.json_to_sheet(rows);

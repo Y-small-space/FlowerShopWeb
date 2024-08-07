@@ -1,12 +1,15 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
-import { Avatar, List, Radio, Space, Button } from "antd";
+import { Avatar, List, Radio, Space, Button, message } from "antd";
+import { useRouter } from "next/navigation";
 
 const OrderList: React.FC = () => {
-  const [data, setDate] = useState<any>();
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
   const fetchFileNames = async (directory: string) => {
     setLoading(true);
     setError(null);
@@ -23,26 +26,32 @@ const OrderList: React.FC = () => {
         setError(data.error);
       }
     } catch (err) {
-      setError("Error fetching data");
+      message.error("Error fetching data");
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchFileNames("/DateBase/orders");
   }, []);
+
+  const handleEdit = (item: string) => {
+    router.push(`/main/manageOrder?item=${encodeURIComponent(item)}`);
+  };
+
   return (
     <>
       <List
-        dataSource={data}
+        dataSource={fileNames}
         style={{ overflow: "auto" }}
+        loading={loading}
         renderItem={(item, index) => (
           <List.Item>
             <List.Item.Meta
-              title={<a href="https://ant.design">{item.title}</a>}
-              description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+              title={<a href="#">{item.slice(0, item.length - 5)}</a>}
             />
-            <Button>编辑</Button>
+            <Button onClick={() => handleEdit(item)}>编辑</Button>
           </List.Item>
         )}
       />

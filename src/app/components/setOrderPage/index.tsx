@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, Space } from "antd";
 import { Text } from "@mantine/core";
-import { v4 as uuidv4 } from "uuid";
 
 const { Option } = Select;
 
@@ -195,22 +194,36 @@ const OrderField: React.FC<OrderFieldProps> = ({
 };
 
 type SetOrderComponetProps = {
-  flowerDate: any;
-  species: any;
-  packingCount: any;
-  In: any;
-  setFormValue: any;
-  key: any;
+  flowerDate?: any;
+  species?: any;
+  packingCount?: any;
+  In?: any;
+  setFormValue?: any;
+  key?: any;
+  formDate?: any;
+  num?: any;
 };
+
 const SerOrderComponet: React.FC<SetOrderComponetProps> = (props) => {
-  const { flowerDate, species, packingCount, In, setFormValue } = props;
+  const { flowerDate, species, packingCount, In, setFormValue, formDate, num } =
+    props;
   const [diable, setDisabel] = useState(false);
   const onFinish = (values: any) => {
     setDisabel(true);
     const aForm = { PakingID: packingCount, values: values };
     setFormValue(aForm);
-    console.log("Received values of form:", aForm);
+    console.log("Received values of form:", values);
   };
+  const Date = {};
+  console.log("num", num);
+  if (formDate) {
+    const key: any = Object?.keys(formDate)[num - 1];
+    const value = Object?.values(formDate)[num - 1];
+    Date[key] = value;
+    console.log("formDate", Date);
+    console.log(`Paking${num || packingCount}`);
+  }
+
   return (
     <div
       style={{
@@ -221,7 +234,7 @@ const SerOrderComponet: React.FC<SetOrderComponetProps> = (props) => {
       }}
     >
       <Text fw={700} size="xl">
-        Paking_ID:{packingCount}
+        Paking_ID:{num || packingCount}
       </Text>
       <br />
       <Form
@@ -230,8 +243,9 @@ const SerOrderComponet: React.FC<SetOrderComponetProps> = (props) => {
         style={{ maxWidth: 900 }}
         autoComplete="off"
         onChange={() => setDisabel(false)}
+        initialValues={Date}
       >
-        <Form.List name="pack1">
+        <Form.List name={`Paking${num || packingCount}`}>
           {(fields, { add, remove }) => (
             <>
               {fields.map((field) => (

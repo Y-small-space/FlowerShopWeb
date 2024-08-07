@@ -5,7 +5,7 @@ import { Text } from "@mantine/core";
 import SerOrderComponet from "../../components/setOrderPage";
 import { UserOutlined } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
-import * as XLSX from "xlsx";
+import Loading from "@/app/components/loading";
 
 const THEPAGE = "CREATE";
 const now = new Date();
@@ -20,8 +20,10 @@ const SetOrderPage: React.FC = () => {
   const [pakingCount, setPakingCount] = useState<any[]>([1]);
   const [customName, setCustomName] = useState("");
   const [formValue, setFormValue] = useState<any>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     async function fetchFlowerDate() {
       try {
         const response = await fetch("/api/getFlowerDate");
@@ -31,6 +33,7 @@ const SetOrderPage: React.FC = () => {
           setFlowerDate(data);
         }
         console.log(data);
+        setLoading(false);
       } catch (err) {
         console.error(err);
       }
@@ -39,6 +42,7 @@ const SetOrderPage: React.FC = () => {
   }, []);
 
   const handleSave = async () => {
+    setLoading(true);
     try {
       // 将数据保存到对象中
       const orderData = {
@@ -56,11 +60,18 @@ const SetOrderPage: React.FC = () => {
         body: JSON.stringify({ customName, year, month, day, formValue }),
       });
 
+      console.log(response);
+
       const data = await response.json();
       console.log(data.message);
       // 清空表单数据
       setFormValue([]);
-      setPakingCount([1]);
+      setPakingCount([0]);
+      setCustomName("");
+      setLoading(false);
+      setTimeout(() => {
+        setPakingCount([1]);
+      }, 1000);
     } catch (error) {
       console.error("Error saving order:", error);
     }
@@ -88,66 +99,77 @@ const SetOrderPage: React.FC = () => {
   }, [formValue]);
 
   return (
-    <div>
-      <Text fw={700} size="xl">
-        创建订单
-      </Text>
-      <br />
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <Input
-          size="large"
-          placeholder="客户姓名"
-          prefix={<UserOutlined />}
-          style={{ width: "20%" }}
-          onChange={(e) => setCustomName(e.target.value)}
-        />
-        <Input
-          size="large"
-          value={String(`${year}-${month}-${day}`)}
-          style={{ width: "20%" }}
-        />
-      </div>
-      <br />
-      {pakingCount.length &&
-        pakingCount.map((i) => (
-          <SerOrderComponet
-            flowerDate={flowerDate}
-            species={species}
-            key={i}
-            packingCount={i}
-            In={THEPAGE}
-            setFormValue={saveForm}
-          />
-        ))}
-      <Button
-        type="primary"
-        style={{ marginTop: "2rem" }}
-        onClick={() =>
-          setPakingCount((prev) => [
-            ...prev,
-            pakingCount[pakingCount.length - 1] + 1,
-          ])
-        }
-      >
-        增加paking
-      </Button>
-      <Button
-        type="primary"
-        style={{ marginTop: "2rem", marginLeft: "1rem" }}
-        disabled={pakingCount.length === 1}
-        onClick={() => {
-          const newPaking = [...pakingCount];
-          newPaking.pop();
-          setPakingCount(newPaking);
-        }}
-      >
-        删除paking
-      </Button>
-      <br />
-      <Button type="primary" style={{ marginTop: "2rem" }} onClick={handleSave}>
-        保存
-      </Button>
-    </div>
+    <>
+      {loading ? (
+        <Loading />
+      ) : (
+        <div>
+          <Text fw={700} size="xl">
+            创建订单
+          </Text>
+          <br />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Input
+              size="large"
+              placeholder="客户姓名"
+              prefix={<UserOutlined />}
+              style={{ width: "20%" }}
+              onChange={(e) => setCustomName(e.target.value)}
+            />
+            <Input
+              size="large"
+              value={String(`${year}-${month}-${day}`)}
+              style={{ width: "20%" }}
+            />
+          </div>
+          <br />
+          {pakingCount.length &&
+            pakingCount.map((i) => (
+              <SerOrderComponet
+                flowerDate={flowerDate}
+                species={species}
+                key={i}
+                packingCount={i}
+                In={THEPAGE}
+                setFormValue={saveForm}
+              />
+            ))}
+          <Button
+            type="primary"
+            style={{ marginTop: "2rem" }}
+            onClick={() =>
+              setPakingCount((prev) => [
+                ...prev,
+                pakingCount[pakingCount.length - 1] + 1,
+              ])
+            }
+          >
+            增加paking
+          </Button>
+          <Button
+            type="primary"
+            style={{ marginTop: "2rem", marginLeft: "1rem" }}
+            disabled={pakingCount.length === 1}
+            onClick={() => {
+              const newPaking = [...pakingCount];
+              newPaking.pop();
+              setPakingCount(newPaking);
+            }}
+          >
+            删除paking
+          </Button>
+          <br />
+          <Button
+            type="primary"
+            style={{ marginTop: "2rem" }}
+            onClick={handleSave}
+            loading={loading}
+          >
+            保存
+          </Button>
+        </div>
+      )}
+    </>
   );
 };
 
