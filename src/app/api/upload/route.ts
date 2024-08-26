@@ -9,9 +9,6 @@ const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const limit = pLimit(1); // 设置并发限制为 5
 
 export async function POST(request: NextRequest) {
-  console.log('====================================');
-  console.log(process.env.GITHUB_TOKEN);
-  console.log('====================================');
   const formData = await parseFormData(request);
   const flowerExcel = formData['flowerExcel'] as { name: string, data: Buffer } | undefined;
   const zipFile = formData['zipFile'] as { name: string, data: Buffer } | undefined;
@@ -41,7 +38,8 @@ export async function POST(request: NextRequest) {
     console.log('====================================');
     console.log("ExcelRes:", ExcelRes);
     console.log('====================================');
-
+    // 等待一段时间确保删除操作完成
+    await new Promise(resolve => setTimeout(resolve, 2000));
     // 解压缩 zipFile
     const zip = new JSZip();
     const zipData = await zip.loadAsync(zipFile.data);
@@ -55,25 +53,55 @@ export async function POST(request: NextRequest) {
 
       uploadPromises.push(limit(async () => {
         const fileData = await file.async('nodebuffer');
-        const githubPath = `DateBase/flawers/flowerImages${relativePath}`;
-        console.log('====================================');
-        console.log(githubPath);
-        console.log('====================================');
-        await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
-          owner: 'Y-small-space',
-          repo: 'FlowerShopWeb',
-          path: githubPath,
-          message: `Upload ${relativePath}`,
-          content: fileData.toString('base64'),
-        });
+
+        // 提取文件夹名称和原始文件名
+        const folderName = relativePath.split('/')[1]; // 获取文件夹名称
+        const originalFileName = relativePath.split('/').pop(); // 获取文件名
+        const newFileName = `${folderName}${originalFileName}`; // 重命名文件
+        const githubPath = `DateBase/flawers/${folderName}/${newFileName}`;
+        try {
+          await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
+            owner: 'Y-small-space',
+            repo: 'FlowerShopWeb',
+            path: githubPath,
+            message: `Upload ${newFileName}`,
+            content: fileData.toString('base64'),
+          });
+          console.log('====================================');
+          console.log('File updated successfully!!!', githubPath);
+          console.log('====================================');
+          return;
+        } catch (error) {
+          if (error.status === 409) {
+            // 处理409错误
+            console.error('Conflict error occurred. Retry fetching the latest SHA and updating the file.');
+            // 重新获取最新的SHA值
+            const response = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+              owner: 'Y-small-space',
+              repo: 'FlowerShopWeb',
+              path: githubPath,
+            });
+            const existingFileSha = response.data.sha;
+            // 再次尝试更新文件
+            await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
+              owner: 'Y-small-space',
+              repo: 'FlowerShopWeb',
+              path: githubPath,
+              message: `Update ${newFileName}`,
+              content: fileData.toString('base64'),
+              sha: existingFileSha, // 提供最新的SHA值以便覆盖
+            });
+            console.log('File updated successfully after retry!!!', githubPath);
+            return;
+          }
+          return;
+        }
       }));
     });
-
     const ZipRes = await Promise.all(uploadPromises);
     console.log('====================================');
     console.log("zigRes:", ZipRes);
     console.log('====================================');
-
     return NextResponse.json({ message: 'Files uploaded successfully' });
   } catch (error: any) {
     console.error(error);
