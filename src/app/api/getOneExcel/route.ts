@@ -15,14 +15,24 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { data: fileContent } = await octokit.repos.getContent({
+    const response: any = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
       owner,
       repo,
       path: `/DateBase/orders/${filePath}`,
     });
 
-    const content = Buffer.from(fileContent.content, 'base64');
-    const workbook = XLSX.read(content, { type: 'buffer' });
+    // 确保 response.data 不是数组
+    if (Array.isArray(response.data)) {
+      throw new Error("Path is a directory or invalid.");
+    }
+
+    const { content } = response.data;
+    if (!content) {
+      throw new Error("File content not found.");
+    }
+
+    const fileContent = Buffer.from(content, 'base64');
+    const workbook = XLSX.read(fileContent, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(sheet);

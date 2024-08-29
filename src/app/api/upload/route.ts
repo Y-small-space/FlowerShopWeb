@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
           console.log('File updated successfully!!!', githubPath);
           console.log('====================================');
           return;
-        } catch (error) {
+        } catch (error: any) {
           if (error.status === 409) {
             // 处理409错误
             console.error('Conflict error occurred. Retry fetching the latest SHA and updating the file.');
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
               repo: 'FlowerShopWeb',
               path: githubPath,
             });
-            const existingFileSha = response.data.sha;
+            const existingFileSha: any = (response.data as any).sha;
             // 再次尝试更新文件
             await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
               owner: 'Y-small-space',

@@ -20,7 +20,15 @@ export default function MainLayout({
       padding="md"
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
+        <Group
+          h="100%"
+          px="md"
+          style={{
+            backgroundColor: "rgb(86,152,251)",
+            color: "white",
+            fontSize: "1.5rem",
+          }}
+        >
           FlowerShop
         </Group>
       </AppShell.Header>
@@ -48,8 +56,8 @@ export default function MainLayout({
             />
           }
         >
-          <NavLink href="/main/orderList" label="订单列表" />
           <NavLink href="/main/setOrder" label="创建订单" />
+          <NavLink href="/main/orderList" label="订单列表" />
         </NavLink>
       </AppShell.Navbar>
       <AppShell.Main style={{ overflow: "auto" }}>{children}</AppShell.Main>

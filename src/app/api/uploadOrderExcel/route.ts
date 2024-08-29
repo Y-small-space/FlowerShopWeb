@@ -21,7 +21,7 @@ const uploadToGitHub = async (content: any, path: string) => {
       path,
       message: `Update ${path}`,
       content: content.toString("base64"),
-      sha: existingFile?.sha,
+      sha: (existingFile as any)?.sha,
     });
   } catch (error: any) {
     if (error.status === 404) {
@@ -45,33 +45,29 @@ export async function POST(request: NextRequest) {
   const orderData = {
     customName,
     date: String(`${year}-${month}-${day}`),
-    contents: formValue,
+    contents: formValue.Order,  // 从请求中获取订单数据
   };
+
   console.log(orderData);
 
+  // 将订单数据转换为行数据
+  const rows = orderData.contents.map((content: any) => ({
+    PackageID: content.PackageID,
+    FlowerSpecies: content.FlowerSpecies,
+    FlowerName: content.FlowerName,
+    FlowerPacking: content.FlowerPacking,
+    FlowerWeight: content.FlowerWeight,
+    Number: content.Number,
+    InPrice: content.InPrice,
+    OutPrice: content.OutPrice,
+  }));
 
-  const { date, contents } = orderData;
-
-  const rows: any = [];
-  let count = 1;
-  contents.forEach((content: any) => {
-    const values = content.values;
-    values[`Paking${count}`].forEach((item: any) => {
-      rows.push({
-        PakingID: content.PakingID,
-        ...item,
-        guige_number: item.guige.number,
-        guige_currency: item.guige.currency,
-      });
-    });
-    count++;
-  });
-
+  // 创建 Excel 表
   const worksheet = XLSX.utils.json_to_sheet(rows);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-  const filename = `${customName}_${date}.xlsx`;
+  const filename = `${customName}_${year}-${month}-${day}.xlsx`;
   const fileContent = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 
   // 上传文件到 GitHub

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       repo,
       path: directory,
     });
-
+    if (!Array.isArray(files)) return;
     const fileNames = files
       .filter((file: any) => file.type === 'file' && file.name.endsWith('.xlsx'))
       .map((file: any) => file.name);
