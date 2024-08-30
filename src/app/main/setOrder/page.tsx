@@ -95,9 +95,9 @@ const SetOrderPage: React.FC = () => {
     const weight_key = Object.keys(flowerDate[kind][0]).filter((i) =>
       i.includes("weight")
     );
-    const paking = paking_key.map((i) => flowerDate[kind][0][i]);
+    const paking: any = paking_key.map((i) => flowerDate[kind][0][i]);
     const paking_unit = paking_unit_key.map((i) => flowerDate[kind][0][i]);
-    const weight = weight_key.map((i) => flowerDate[kind][0][i]);
+    const weight: any = weight_key.map((i) => flowerDate[kind][0][i]);
 
     setPaking(paking);
     setPakingUnit(paking_unit[0]);

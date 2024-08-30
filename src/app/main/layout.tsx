@@ -1,7 +1,7 @@
 "use client";
 
 import { AppShell, Group, NavLink } from "@mantine/core";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, Suspense } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronRight, IconGauge } from "@tabler/icons-react";
 import { ReactNode } from "react";
@@ -60,7 +60,9 @@ export default function MainLayout({
           <NavLink href="/main/orderList" label="订单列表" />
         </NavLink>
       </AppShell.Navbar>
-      <AppShell.Main style={{ overflow: "auto" }}>{children}</AppShell.Main>
+      <AppShell.Main style={{ overflow: "auto" }}>
+        <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+      </AppShell.Main>
     </AppShell>
   );
 }
