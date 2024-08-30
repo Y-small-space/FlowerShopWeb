@@ -80,54 +80,23 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ message: "File uploaded/updated successfully" });
 }
 
-export async function GET(request: NextRequest) {
-  const url = new URL(request.url);
-  const filePath = url.searchParams.get('filePath');
-
-  if (!filePath) {
-    return NextResponse.json({ error: 'Missing filePath parameter' }, { status: 400 });
-  }
-
+export async function GET() {
+  // 获取文件用于前端下载
   try {
-    const response = await octokit.repos.getContent({
+    const { data: fileContent }: { data: any } = await octokit.repos.getContent({
       owner,
       repo,
-      path: `/DateBase/orders/${filePath}`,
+      path: filePath,
     });
-
-    // 检查返回的数据是否是文件
-    if (Array.isArray(response.data)) {
-      throw new Error("Path is a directory or invalid.");
-    }
-
-    const { content } = response.data as { content: string }; // 类型断言为文件类型
-    if (!content) {
-      throw new Error("File content not found.");
-    }
-
-    // 解码 base64 内容
-    const fileContent = Buffer.from(content, 'base64');
-    const workbook = XLSX.read(fileContent, { type: 'buffer' });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-    // Process jsonData to combine guige_number and guige_currency into a guige object
-    const processedData = jsonData.map((item: any) => ({
-      ...item,
-      guige: {
-        number: item.guige_number,
-        currency: item.guige_currency,
-      },
-      guige_number: undefined,
-      guige_currency: undefined,
-    }));
-
-    console.log('processedData', processedData);
-
-    return NextResponse.json(processedData);
-  } catch (error: any) {
+    const content: any = fileContent?.content;
+    if (!content) return;
+    const fileBuffer = Buffer.from(content, "base64");
+    return NextResponse.json({ fileBuffer: fileBuffer.toString("base64") });
+  } catch (error) {
     console.error("Error fetching file from GitHub:", error);
-    return NextResponse.json({ error: `错误: ${error.message}` }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error fetching file from GitHub" },
+      { status: 500 }
+    );
   }
 }

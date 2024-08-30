@@ -1,12 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Button, Input, Form, Space, Select, message } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Input, Form, Space, Select, message, Row, Col } from "antd";
+import {
+  MinusCircleOutlined,
+  PlusOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { Text } from "@mantine/core";
-import SerOrderComponet from "../../components/setOrderPage";
-import { UserOutlined } from "@ant-design/icons";
-import { useForm } from "antd/es/form/Form";
 import Loading from "@/app/components/loading";
+
 const now = new Date();
 const year = now.getFullYear();
 const month = now.getMonth() + 1; // 月份从0开始，所以要加1
@@ -23,43 +25,34 @@ const SetOrderPage: React.FC = () => {
   const [weight, setWeight] = useState();
   const [customName, setCustomName] = useState("");
   const [date, setDate] = useState("");
+
   const onFinish = async (formValue: any) => {
     if (!customName) {
       message.error("客户姓名为必填！！！");
       return;
     }
-    console.log("Received values of form:", formValue);
     setLoading(true);
     try {
-      // 将数据保存到对象中
       const orderData = {
         customerName: customName,
-        date: date || String(`${year}-${month}-${day}`),
+        date: date || `${year}-${month}-${day}`,
         contents: formValue,
       };
-      console.log("Order Data:", orderData);
 
       const response = await fetch("/api/uploadOrderExcel", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ customName, year, month, day, formValue }),
       });
 
       if (response.ok) {
         message.success("保存成功！！！");
       }
-      console.log(response);
 
-      const data = await response.json();
-
-      console.log(data.message);
-      // 清空表单数据
       setLoading(false);
     } catch (error: any) {
       message.error(error);
-      console.error("Error saving order:", error);
+      setLoading(false);
     }
   };
 
@@ -69,23 +62,21 @@ const SetOrderPage: React.FC = () => {
       try {
         const response = await fetch("/api/getFlowerDate");
         const data = await response.json();
-        console.log("flawerDate:", data);
         if (data) {
           setSpecies(Object.keys(data));
           setFlowerDate(data);
         }
         setLoading(false);
       } catch (err) {
-        console.error(err);
+        setLoading(false);
       }
     }
     fetchFlowerDate();
   }, []);
 
   useEffect(() => {
-    if (!kind) return;
-    if (!flowerDate) return;
-    console.log("1", flowerDate[kind][0]);
+    if (!kind || !flowerDate) return;
+
     const paking_key = Object.keys(flowerDate[kind][0]).filter(
       (i) => i.includes("Packing") && !i.includes("Unit")
     );
@@ -95,6 +86,7 @@ const SetOrderPage: React.FC = () => {
     const weight_key = Object.keys(flowerDate[kind][0]).filter((i) =>
       i.includes("weight")
     );
+
     const paking: any = paking_key.map((i) => flowerDate[kind][0][i]);
     const paking_unit = paking_unit_key.map((i) => flowerDate[kind][0][i]);
     const weight: any = weight_key.map((i) => flowerDate[kind][0][i]);
@@ -114,27 +106,29 @@ const SetOrderPage: React.FC = () => {
             创建订单
           </Text>
           <br />
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Input
-              size="large"
-              placeholder="客户姓名"
-              prefix={<UserOutlined />}
-              style={{ width: "20%" }}
-              onChange={(e) => setCustomName(e.target.value)}
-            />
-            <Input
-              size="large"
-              value={date || String(`${year}-${month}-${day}`)}
-              style={{ width: "20%", marginRight: "23%" }}
-              onChange={(e) => setDate(e.target.value)}
-            />
-          </div>
-          <br />
+          <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+            <Col xs={24} sm={12} md={8}>
+              <Input
+                size="large"
+                placeholder="客户姓名"
+                prefix={<UserOutlined />}
+                onChange={(e) => setCustomName(e.target.value)}
+              />
+            </Col>
+            <Col xs={24} sm={12} md={8}>
+              <Input
+                size="large"
+                value={date || `${year}-${month}-${day}`}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </Col>
+          </Row>
+
           <Form
             name="dynamic_form_nest_item"
             onFinish={onFinish}
-            style={{ maxWidth: 900 }}
             autoComplete="off"
+            layout="vertical"
           >
             <Form.List name="Order">
               {(fields, { add, remove }) => (
@@ -163,6 +157,7 @@ const SetOrderPage: React.FC = () => {
                         <Select
                           placeholder="选择花的种类"
                           onChange={(i) => setKind(i)}
+                          style={{ minWidth: "8rem" }}
                         >
                           {species?.map((i) => (
                             <Option key={`${i}`} value={i}>
@@ -176,7 +171,10 @@ const SetOrderPage: React.FC = () => {
                         name={[name, "FlowerName"]}
                         rules={[{ required: true, message: "花的名称为必填" }]}
                       >
-                        <Select placeholder="选择花的名称">
+                        <Select
+                          placeholder="选择花的名称"
+                          style={{ minWidth: "8rem" }}
+                        >
                           {flowerDate &&
                             kind &&
                             flowerDate[kind] &&
@@ -196,7 +194,10 @@ const SetOrderPage: React.FC = () => {
                         name={[name, "FlowerPacking"]}
                         rules={[{ required: true, message: "花的规格为必填" }]}
                       >
-                        <Select placeholder="选择花的规格">
+                        <Select
+                          placeholder="选择花的规格"
+                          style={{ minWidth: "8rem" }}
+                        >
                           {paking &&
                             (paking as any)?.map((i: any) => (
                               <Option key={i} value={i}>
@@ -210,11 +211,14 @@ const SetOrderPage: React.FC = () => {
                         name={[name, "FlowerWeight"]}
                         rules={[{ required: true, message: "花的单重为必填" }]}
                       >
-                        <Select placeholder="选择花的单重">
+                        <Select
+                          placeholder="选择花的单重"
+                          style={{ minWidth: "8rem" }}
+                        >
                           {weight &&
                             (weight as any)?.map((i: any) => (
                               <Option key={i} value={i}>
-                                {i + "weight/kg"}
+                                {i + " weight/kg"}
                               </Option>
                             ))}
                         </Select>
