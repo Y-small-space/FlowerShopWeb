@@ -1,10 +1,9 @@
 "use client";
 
 import { AppShell, Group, NavLink } from "@mantine/core";
-import { PropsWithChildren, Suspense } from "react";
-import { useDisclosure } from "@mantine/hooks";
+import { Suspense } from "react";
+import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { IconChevronRight, IconGauge } from "@tabler/icons-react";
-import { ReactNode } from "react";
 
 export default function MainLayout({
   children,
@@ -12,12 +11,22 @@ export default function MainLayout({
   children?: React.ReactNode;
 }) {
   const [opened, { toggle }] = useDisclosure();
+  const isSmallScreen = useMediaQuery("(max-width: 768px)"); // 检测屏幕宽度小于768px
 
   return (
     <AppShell
       header={{ height: 60 }}
-      navbar={{ width: 300, breakpoint: "sm", collapsed: { mobile: !opened } }}
+      navbar={{
+        width: isSmallScreen ? 250 : 300, // 设置不同屏幕下的导航栏宽度
+        breakpoint: "sm",
+        collapsed: { mobile: !opened }, // 在移动设备上根据状态折叠导航栏
+      }}
       padding="md"
+      styles={(theme) => ({
+        main: {
+          backgroundColor: theme.colors.gray[0],
+        },
+      })}
     >
       <AppShell.Header>
         <Group
@@ -27,11 +36,27 @@ export default function MainLayout({
             backgroundColor: "rgb(86,152,251)",
             color: "white",
             fontSize: "1.5rem",
+            justifyContent: "space-between", // 使内容在行内居中分布
+            alignItems: "center", // 垂直居中对齐
           }}
         >
           FlowerShop
+          {isSmallScreen && (
+            <button
+              onClick={toggle}
+              style={{
+                backgroundColor: "transparent",
+                border: "none",
+                cursor: "pointer",
+                color: "white",
+              }}
+            >
+              {opened ? "关闭导航" : "打开导航"}
+            </button>
+          )}
         </Group>
       </AppShell.Header>
+
       <AppShell.Navbar p="md">
         <NavLink
           href="/main/uploadPage"
@@ -60,6 +85,7 @@ export default function MainLayout({
           <NavLink href="/main/orderList" label="订单列表" />
         </NavLink>
       </AppShell.Navbar>
+
       <AppShell.Main style={{ overflow: "auto" }}>
         <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
       </AppShell.Main>
