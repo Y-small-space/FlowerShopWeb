@@ -36,28 +36,23 @@ const SetOrderPage: React.FC = () => {
   const onFinish = async (formValue: any) => {
     console.log(formValue);
 
-    // setLoading(true);
-    // const [year, month, day] = time.split("-");
-    // try {
-    //   const response = await fetch("/api/uploadOrderExcel", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ customName, year, month, day, formValue }),
-    //   });
+    setLoading(true);
+    const [year, month, day] = time.split("-");
+    try {
+      const response = await fetch("/api/uploadOrderExcel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customName, year, month, day, formValue }),
+      });
 
-    //   if (response.ok) {
-    //     message.success("保存成功！！！");
-    //   }
-    //   setLoading(false);
-    // } catch (error) {
-    //   message.error("保存订单出错");
-    //   console.error("Error saving order:", error);
-    // }
-  };
-
-  const refreshOrder = () => {
-    form.resetFields();
-    setInitialValues([]);
+      if (response.ok) {
+        message.success("保存成功！！！");
+      }
+      setLoading(false);
+    } catch (error) {
+      message.error("保存订单出错");
+      console.error("Error saving order:", error);
+    }
   };
 
   useEffect(() => {
@@ -66,6 +61,7 @@ const SetOrderPage: React.FC = () => {
       try {
         const response = await fetch("/api/getFlowerDate");
         const data = await response.json();
+
         if (data) {
           setSpecies(Object.keys(data));
           setFlowerDate(data);
@@ -84,11 +80,24 @@ const SetOrderPage: React.FC = () => {
         const response = await fetch(
           `/api/getOneExcel?filePath=${encodeURIComponent(item as any)}`
         );
+        console.log(response);
+
         setCustomName(item?.split("_")[0] as any);
         setTime(item?.split("_")[1].split(".")[0] as any);
         const data = await response.json();
-        setInitialValues(data);
-        form.setFieldsValue({ Order: data });
+        console.log(data);
+
+        console.log(data.summary);
+
+        setInitialValues(data.orders);
+        form.setFieldsValue({
+          Order: data.orders,
+          customFee: data.summary.CustomFee,
+          shippingFee: data.summary.ShippingFee,
+          packagingFee: data.summary.PackagingFee,
+          certificateFee: data.summary.CertificateFee,
+          fumigationFee: data.summary.FumigationFee,
+        });
       } catch (error) {
         console.error("Error fetching order data:", error);
       }
@@ -115,23 +124,6 @@ const SetOrderPage: React.FC = () => {
     setPakingUnit(paking_unit[0]);
     setWeight(weight);
   }, [kind]);
-
-  const calculateTotalMiscFeePerItem = (formValues: any) => {
-    const orders = formValues.Order || [];
-    const totalMiscFee =
-      (formValues.customFee || 0) +
-      (formValues.shippingFee || 0) +
-      (formValues.packagingFee || 0) +
-      (formValues.certificateFee || 0) +
-      (formValues.fumigationFee || 0);
-
-    const totalNumber = orders.reduce(
-      (acc: number, curr: any) => acc + (curr?.Number ?? 0),
-      0
-    );
-
-    return totalNumber > 0 ? totalMiscFee / totalNumber : 0;
-  };
 
   return (
     <>
@@ -164,23 +156,37 @@ const SetOrderPage: React.FC = () => {
             form={form}
             name="dynamic_form_nest_item"
             onFinish={onFinish}
-            className="form-wrapper"
             autoComplete="off"
-            initialValues={{ Order: initialValues }}
           >
-            <Form.Item label="报关服务费" name="customFee">
+            <Form.Item
+              style={{ width: "20%" }}
+              label="报关服务费"
+              name="customFee"
+            >
               <Input type="number" placeholder="请输入报关服务费" />
             </Form.Item>
-            <Form.Item label="运费" name="shippingFee">
+            <Form.Item style={{ width: "20%" }} label="运费" name="shippingFee">
               <Input type="number" placeholder="请输入运费" />
             </Form.Item>
-            <Form.Item label="打包杂费" name="packagingFee">
+            <Form.Item
+              style={{ width: "20%" }}
+              label="打包杂费"
+              name="packagingFee"
+            >
               <Input type="number" placeholder="请输入打包杂费" />
             </Form.Item>
-            <Form.Item label="证书费" name="certificateFee">
+            <Form.Item
+              style={{ width: "20%" }}
+              label="证书费"
+              name="certificateFee"
+            >
               <Input type="number" placeholder="请输入证书费" />
             </Form.Item>
-            <Form.Item label="熏蒸费" name="fumigationFee">
+            <Form.Item
+              style={{ width: "20%" }}
+              label="熏蒸费"
+              name="fumigationFee"
+            >
               <Input type="number" placeholder="请输入熏蒸费" />
             </Form.Item>
             <Form.List name="Order">
@@ -323,18 +329,43 @@ const SetOrderPage: React.FC = () => {
                             "FlowerWeight",
                           ]);
 
-                          const amount =
-                            number && outPrice ? number * outPrice : 0;
                           const totalWeight =
                             number && weight ? number * weight : 0;
 
                           // 计算每个订单均摊的杂费
-                          const totalMiscFeePerItem =
-                            calculateTotalMiscFeePerItem(getFieldValue());
-                          const adjustedPrice = outPrice
-                            ? outPrice + totalMiscFeePerItem
-                            : totalMiscFeePerItem;
+                          const formValues = form.getFieldsValue(); // 获取表单的所有值
+                          const totalMiscFee =
+                            (Number(formValues.customFee) || 0) +
+                            (Number(formValues.shippingFee) || 0) +
+                            (parseInt(formValues.packagingFee) || 0) +
+                            (parseInt(formValues.certificateFee) || 0) +
+                            (parseInt(formValues.fumigationFee) || 0);
 
+                          const totalNumber = Number(
+                            (formValues.Order || []).reduce(
+                              (acc: number, curr: any) =>
+                                acc + Number(curr?.Number ?? 0),
+                              0
+                            )
+                          );
+
+                          console.log("totalnumber", totalNumber);
+
+                          const totalMiscFeePerItem =
+                            totalNumber > 0 ? totalMiscFee / totalNumber : 0;
+
+                          console.log(totalMiscFeePerItem);
+                          console.log(totalMiscFee);
+
+                          const adjustedPrice = outPrice
+                            ? Number(outPrice) + totalMiscFeePerItem
+                            : totalMiscFeePerItem;
+                          const amount =
+                            adjustedPrice && number
+                              ? number * adjustedPrice
+                              : number && outPrice
+                              ? number * outPrice
+                              : 0;
                           return (
                             <div
                               style={{
@@ -342,9 +373,16 @@ const SetOrderPage: React.FC = () => {
                                 flexDirection: "column",
                               }}
                             >
-                              <span>总额: {amount}</span>
-                              <span>总重: {totalWeight}</span>
-                              <span>均摊后的售价: {adjustedPrice}</span>
+                              <span>总额: {amount.toFixed(2)}</span>
+                              <span>总重: {totalWeight.toFixed(2)}</span>
+                              <span>
+                                均摊后的售价:{" "}
+                                {(adjustedPrice
+                                  ? adjustedPrice
+                                  : outPrice
+                                )?.toFixed(2)}
+                              </span>{" "}
+                              {/* 保留两位小数 */}
                             </div>
                           );
                         }}
@@ -367,7 +405,6 @@ const SetOrderPage: React.FC = () => {
             </Form.List>
             <Form.Item>
               <Space>
-                <Button onClick={refreshOrder}>刷新订单</Button>
                 <Button type="primary" htmlType="submit">
                   保存订单
                 </Button>

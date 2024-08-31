@@ -14,7 +14,6 @@ const uploadToGitHub = async (content: any, path: string) => {
       path,
     });
 
-    // 文件已经存在，更新文件
     await octokit.repos.createOrUpdateFileContents({
       owner,
       repo,
@@ -25,7 +24,6 @@ const uploadToGitHub = async (content: any, path: string) => {
     });
   } catch (error: any) {
     if (error.status === 404) {
-      // 文件不存在，创建新文件
       await octokit.repos.createOrUpdateFileContents({
         owner,
         repo,
@@ -42,35 +40,74 @@ const uploadToGitHub = async (content: any, path: string) => {
 export async function POST(request: NextRequest) {
   const { customName, year, month, day, formValue } = await request.json();
 
-  const orderData = {
-    customName,
-    date: String(`${year}-${month}-${day}`),
-    contents: formValue.Order,  // 从请求中获取订单数据
+  const orders = formValue.Order || [];
+
+  const customFee = Number(formValue.customFee) || 0;
+  const shippingFee = Number(formValue.shippingFee) || 0;
+  const packagingFee = Number(formValue.packagingFee) || 0;
+  const certificateFee = Number(formValue.certificateFee) || 0;
+  const fumigationFee = Number(formValue.fumigationFee) || 0;
+
+  const totalMiscFee = customFee + shippingFee + packagingFee + certificateFee + fumigationFee;
+
+  const totalNumber = orders.reduce(
+    (acc: number, curr: any) => acc + (curr?.Number ?? 0),
+    0
+  );
+
+  const totalMiscFeePerItem = totalNumber > 0 ? totalMiscFee / totalNumber : 0;
+
+  const updatedOrders = orders.map((order: any) => {
+    const number = Number(order.Number || 0);
+    const outPrice = Number(order.OutPrice || 0);
+    const adjustedPrice = outPrice + totalMiscFeePerItem;
+    const amount = number * outPrice;
+    const totalWeight = number * (Number(order.FlowerWeight || 0));
+
+    return {
+      ...order,
+      Amount: amount,
+      TotalWeight: totalWeight,
+      AdjustedPrice: adjustedPrice.toFixed(2)
+    };
+  });
+
+  const summary = {
+    CustomFee: customFee.toFixed(2),
+    ShippingFee: shippingFee.toFixed(2),
+    PackagingFee: packagingFee.toFixed(2),
+    CertificateFee: certificateFee.toFixed(2),
+    FumigationFee: fumigationFee.toFixed(2),
+    TotalMiscFee: totalMiscFee.toFixed(2),
+    TotalNumber: totalNumber,
+    TotalMiscFeePerItem: totalMiscFeePerItem.toFixed(2),
   };
 
-  console.log(orderData);
-
-  // 将订单数据转换为行数据
-  const rows = orderData.contents.map((content: any) => ({
-    PackageID: content.PackageID,
-    FlowerSpecies: content.FlowerSpecies,
-    FlowerName: content.FlowerName,
-    FlowerPacking: content.FlowerPacking,
-    FlowerWeight: content.FlowerWeight,
-    Number: content.Number,
-    InPrice: content.InPrice,
-    OutPrice: content.OutPrice,
+  // 将订单数据和汇总信息转换为行数据
+  const rows = updatedOrders.map((order: any) => ({
+    PackageID: order.PackageID,
+    FlowerSpecies: order.FlowerSpecies,
+    FlowerName: order.FlowerName,
+    FlowerPacking: order.FlowerPacking,
+    FlowerWeight: order.FlowerWeight,
+    Number: order.Number,
+    InPrice: order.InPrice,
+    OutPrice: order.OutPrice,
+    Amount: order.Amount,
+    TotalWeight: order.TotalWeight,
+    AdjustedPrice: order.AdjustedPrice,
   }));
 
   // 创建 Excel 表
   const worksheet = XLSX.utils.json_to_sheet(rows);
+  const summaryWorksheet = XLSX.utils.json_to_sheet([summary], { header: Object.keys(summary) });
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+  XLSX.utils.book_append_sheet(workbook, summaryWorksheet, "Summary");
 
   const filename = `${customName}_${year}-${month}-${day}.xlsx`;
   const fileContent = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 
-  // 上传文件到 GitHub
   await uploadToGitHub(fileContent, `DateBase/orders/${filename}`);
 
   return NextResponse.json({ message: 'File uploaded successfully' });

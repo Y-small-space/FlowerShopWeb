@@ -21,7 +21,6 @@ export async function GET(request: NextRequest) {
       path: `/DateBase/orders/${filePath}`,
     });
 
-    // 确保 response.data 不是数组
     if (Array.isArray(response.data)) {
       throw new Error("Path is a directory or invalid.");
     }
@@ -33,9 +32,16 @@ export async function GET(request: NextRequest) {
 
     const fileContent = Buffer.from(content, 'base64');
     const workbook = XLSX.read(fileContent, { type: 'buffer' });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+    const orderSheet = workbook.Sheets['Orders'];
+    const summarySheet = workbook.Sheets['Summary'];
+
+    if (!orderSheet) {
+      throw new Error("Orders sheet not found.");
+    }
+
+    const jsonData = XLSX.utils.sheet_to_json(orderSheet);
+    const summaryData = summarySheet ? XLSX.utils.sheet_to_json(summarySheet) : [];
 
     // Process jsonData to combine guige_number and guige_currency into a guige object
     const processedData = jsonData.map((item: any) => ({
@@ -44,14 +50,14 @@ export async function GET(request: NextRequest) {
         number: item.guige_number,
         currency: item.guige_currency,
       },
-      // Optionally remove the original guige_number and guige_currency fields
       guige_number: undefined,
       guige_currency: undefined,
     }));
 
-    console.log('processedData', processedData);
-
-    return NextResponse.json(processedData);
+    return NextResponse.json({
+      orders: processedData,
+      summary: summaryData[0] || {}
+    });
   } catch (error) {
     console.error("Error fetching file from GitHub:", error);
     return NextResponse.json({ error: 'Error fetching file from GitHub' }, { status: 500 });
