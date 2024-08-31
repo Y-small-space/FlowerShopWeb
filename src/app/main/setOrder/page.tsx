@@ -27,28 +27,28 @@ const SetOrderPage: React.FC = () => {
   const [date, setDate] = useState("");
 
   const onFinish = async (formValue: any) => {
+    console.log(formValue);
+
     if (!customName) {
       message.error("客户姓名为必填！！！");
       return;
     }
     setLoading(true);
     try {
-      const orderData = {
-        customerName: customName,
-        date: date || `${year}-${month}-${day}`,
-        contents: formValue,
-      };
-
       const response = await fetch("/api/uploadOrderExcel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customName, year, month, day, formValue }),
+        body: JSON.stringify({
+          customName,
+          year,
+          month,
+          day,
+          formValue,
+        }),
       });
-
       if (response.ok) {
         message.success("保存成功！！！");
       }
-
       setLoading(false);
     } catch (error: any) {
       message.error(error);

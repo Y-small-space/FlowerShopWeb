@@ -36,23 +36,23 @@ const SetOrderPage: React.FC = () => {
   const onFinish = async (formValue: any) => {
     console.log(formValue);
 
-    setLoading(true);
-    const [year, month, day] = time.split("-");
-    try {
-      const response = await fetch("/api/uploadOrderExcel", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customName, year, month, day, formValue }),
-      });
+    // setLoading(true);
+    // const [year, month, day] = time.split("-");
+    // try {
+    //   const response = await fetch("/api/uploadOrderExcel", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ customName, year, month, day, formValue }),
+    //   });
 
-      if (response.ok) {
-        message.success("保存成功！！！");
-      }
-      setLoading(false);
-    } catch (error) {
-      message.error("保存订单出错");
-      console.error("Error saving order:", error);
-    }
+    //   if (response.ok) {
+    //     message.success("保存成功！！！");
+    //   }
+    //   setLoading(false);
+    // } catch (error) {
+    //   message.error("保存订单出错");
+    //   console.error("Error saving order:", error);
+    // }
   };
 
   useEffect(() => {
@@ -61,6 +61,8 @@ const SetOrderPage: React.FC = () => {
       try {
         const response = await fetch("/api/getFlowerDate");
         const data = await response.json();
+
+        console.log(data);
 
         if (data) {
           setSpecies(Object.keys(data));
