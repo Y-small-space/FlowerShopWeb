@@ -42,11 +42,11 @@ export async function POST(request: NextRequest) {
 
   const orders = formValue.Order || [];
 
-  const customFee = Number(formValue.customFee) || 0;
-  const shippingFee = Number(formValue.shippingFee) || 0;
-  const packagingFee = Number(formValue.packagingFee) || 0;
-  const certificateFee = Number(formValue.certificateFee) || 0;
-  const fumigationFee = Number(formValue.fumigationFee) || 0;
+  const customFee = parseInt(formValue.customFee) || 0;
+  const shippingFee = parseInt(formValue.shippingFee) || 0;
+  const packagingFee = parseInt(formValue.packagingFee) || 0;
+  const certificateFee = parseInt(formValue.certificateFee) || 0;
+  const fumigationFee = parseInt(formValue.fumigationFee) || 0;
 
   const totalMiscFee = customFee + shippingFee + packagingFee + certificateFee + fumigationFee;
 
@@ -55,23 +55,6 @@ export async function POST(request: NextRequest) {
     0
   );
 
-  const totalMiscFeePerItem = totalNumber > 0 ? totalMiscFee / totalNumber : 0;
-
-  const updatedOrders = orders.map((order: any) => {
-    const number = Number(order.Number || 0);
-    const outPrice = Number(order.OutPrice || 0);
-    const adjustedPrice = outPrice + totalMiscFeePerItem;
-    const amount = number * outPrice;
-    const totalWeight = number * (Number(order.FlowerWeight || 0));
-
-    return {
-      ...order,
-      Amount: amount,
-      TotalWeight: totalWeight,
-      AdjustedPrice: adjustedPrice.toFixed(2)
-    };
-  });
-
   const summary = {
     CustomFee: customFee.toFixed(2),
     ShippingFee: shippingFee.toFixed(2),
@@ -79,12 +62,11 @@ export async function POST(request: NextRequest) {
     CertificateFee: certificateFee.toFixed(2),
     FumigationFee: fumigationFee.toFixed(2),
     TotalMiscFee: totalMiscFee.toFixed(2),
-    TotalNumber: totalNumber,
-    TotalMiscFeePerItem: totalMiscFeePerItem.toFixed(2),
+    TotalNumber: totalNumber
   };
 
   // 将订单数据和汇总信息转换为行数据
-  const rows = updatedOrders.map((order: any) => ({
+  const rows = orders.map((order: any) => ({
     PackageID: order.PackageID,
     FlowerSpecies: order.FlowerSpecies,
     FlowerName: order.FlowerName,
@@ -96,6 +78,7 @@ export async function POST(request: NextRequest) {
     Amount: order.Amount,
     TotalWeight: order.TotalWeight,
     AdjustedPrice: order.AdjustedPrice,
+    TotalPrice: order.TotalPrice
   }));
 
   // 创建 Excel 表

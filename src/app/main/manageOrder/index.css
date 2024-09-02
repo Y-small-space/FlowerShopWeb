@@ -36,3 +36,9 @@
     width: 100%;
   }
 }
+
+.print-buttons {
+  width: 50%;
+  display: flex;
+  justify-content: space-between;
+}
