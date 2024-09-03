@@ -12,6 +12,7 @@ import Loading from "@/app/components/loading";
 import { useSearchParams } from "next/navigation";
 import "./index.css"; // 引入样式文件
 import * as XLSX from "xlsx"; // 使用 SheetJS 库来生成 Excel 文件
+import SelectModal from "./selectModal";
 
 const now = new Date();
 const year = now.getFullYear();
@@ -33,60 +34,65 @@ const SetOrderPage: React.FC = () => {
   const searchParams = useSearchParams();
   const item = searchParams.get("item");
   const [time, setTime] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
 
   // 打印不同Excel的函数
-  const printExcel1 = () => {
-    console.log("initialValue:", initialValues);
-    // 将订单数据和汇总信息转换为行数据
-    const rows = initialValues.map((order: any) => ({
-      "品种 \n（中文名-英文名）\n( DESCRIPTION & SPECIFICATION)":
-        order?.FlowerSpecies,
-      植物学名: order?.FlowerName,
-      数量: order?.Number,
-      规格: order?.FlowerPacking,
-      "净重\nNet Weight": order?.TotalWeight,
-      "总额\nAMOUNT（USD）": order?.TotalPrice,
-    }));
+  // const printExcel1 = () => {
+  //   console.log("initialValue:", initialValues);
+  //   // 将订单数据和汇总信息转换为行数据
+  //   const rows = initialValues.map((order: any) => ({
+  //     "品种 \n（中文名-英文名）\n( DESCRIPTION & SPECIFICATION)":
+  //       order?.FlowerSpecies,
+  //     植物学名: order?.FlowerName,
+  //     数量: order?.Number,
+  //     规格: order?.FlowerPacking,
+  //     "净重\nNet Weight": order?.TotalWeight,
+  //     "总额\nAMOUNT（USD）": order?.TotalPrice,
+  //   }));
 
-    // 创建 Excel 表
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-    // const ws = XLSX.utils.json_to_sheet(data.Order);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, worksheet, "订单1");
-    XLSX.writeFile(wb, "订单1.xlsx");
-  };
+  //   // 创建 Excel 表
+  //   const worksheet = XLSX.utils.json_to_sheet(rows);
+  //   // const ws = XLSX.utils.json_to_sheet(data.Order);
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, worksheet, "订单1");
+  //   XLSX.writeFile(wb, "订单1.xlsx");
+  // };
 
-  const printExcel2 = () => {
-    console.log("initialValue:", initialValues);
-    const rows = initialValues.map((order: any) => ({
-      "品种 \n( DESCRIPTION & SPECIFICATION)": order?.FlowerSpecies,
-      植物学名: order?.FlowerName,
-      数量: order?.Number,
-      单价: order?.AdjustedPrice,
-      "总额\nAMOUNT（USD）": order?.TotalPrice,
-    }));
+  // const printExcel2 = () => {
+  //   console.log("initialValue:", initialValues);
+  //   const rows = initialValues.map((order: any) => ({
+  //     "品种 \n( DESCRIPTION & SPECIFICATION)": order?.FlowerSpecies,
+  //     植物学名: order?.FlowerName,
+  //     数量: order?.Number,
+  //     单价: order?.AdjustedPrice,
+  //     "总额\nAMOUNT（USD）": order?.TotalPrice,
+  //   }));
 
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "订单2");
-    XLSX.writeFile(wb, "订单2.xlsx");
-  };
+  //   const ws = XLSX.utils.json_to_sheet(rows);
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, "订单2");
+  //   XLSX.writeFile(wb, "订单2.xlsx");
+  // };
 
-  const printExcel3 = () => {
-    console.log("initialValue:", initialValues);
-    const rows = initialValues.map((order: any) => ({
-      品种名称: order?.FlowerName,
-      规格: order?.FlowerPacking,
-      数量: order?.Number,
-      单价: order?.AdjustedPrice,
-      总额: order?.TotalPrice,
-    }));
+  // const printExcel3 = () => {
+  //   console.log("initialValue:", initialValues);
+  //   const rows = initialValues.map((order: any) => ({
+  //     品种名称: order?.FlowerName,
+  //     规格: order?.FlowerPacking,
+  //     数量: order?.Number,
+  //     单价: order?.AdjustedPrice,
+  //     总额: order?.TotalPrice,
+  //   }));
 
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "订单3");
-    XLSX.writeFile(wb, "订单3.xlsx");
-  };
+  //   const ws = XLSX.utils.json_to_sheet(rows);
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, "订单3");
+  //   XLSX.writeFile(wb, "订单3.xlsx");
+  // };
 
   const onFinish = async (formValue: any) => {
     console.log(formValue);
@@ -353,7 +359,7 @@ const SetOrderPage: React.FC = () => {
                           {weight &&
                             (weight as any)?.map((i: any) => (
                               <Option key={i} value={i}>
-                                {i}
+                                {`${i}weight/kg`}
                               </Option>
                             ))}
                         </Select>
@@ -478,19 +484,20 @@ const SetOrderPage: React.FC = () => {
               <Button type="primary" htmlType="submit">
                 保存
               </Button>
+              <Button
+                type="primary"
+                style={{ marginLeft: "1rem" }}
+                onClick={showModal}
+              >
+                打印Excel
+              </Button>
             </Form.Item>
           </Form>
-          <div className="print-buttons">
-            <Button type="primary" onClick={printExcel1}>
-              打印Excel 1
-            </Button>
-            <Button type="primary" onClick={printExcel2}>
-              打印Excel 2
-            </Button>
-            <Button type="primary" onClick={printExcel3}>
-              打印Excel 3
-            </Button>
-          </div>
+          <SelectModal
+            isModalOpen={isModalOpen}
+            setIsModalOpen={setIsModalOpen}
+            initialValues={initialValues}
+          />
         </div>
       )}
     </>
