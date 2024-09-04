@@ -40,60 +40,6 @@ const SetOrderPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // 打印不同Excel的函数
-  // const printExcel1 = () => {
-  //   console.log("initialValue:", initialValues);
-  //   // 将订单数据和汇总信息转换为行数据
-  //   const rows = initialValues.map((order: any) => ({
-  //     "品种 \n（中文名-英文名）\n( DESCRIPTION & SPECIFICATION)":
-  //       order?.FlowerSpecies,
-  //     植物学名: order?.FlowerName,
-  //     数量: order?.Number,
-  //     规格: order?.FlowerPacking,
-  //     "净重\nNet Weight": order?.TotalWeight,
-  //     "总额\nAMOUNT（USD）": order?.TotalPrice,
-  //   }));
-
-  //   // 创建 Excel 表
-  //   const worksheet = XLSX.utils.json_to_sheet(rows);
-  //   // const ws = XLSX.utils.json_to_sheet(data.Order);
-  //   const wb = XLSX.utils.book_new();
-  //   XLSX.utils.book_append_sheet(wb, worksheet, "订单1");
-  //   XLSX.writeFile(wb, "订单1.xlsx");
-  // };
-
-  // const printExcel2 = () => {
-  //   console.log("initialValue:", initialValues);
-  //   const rows = initialValues.map((order: any) => ({
-  //     "品种 \n( DESCRIPTION & SPECIFICATION)": order?.FlowerSpecies,
-  //     植物学名: order?.FlowerName,
-  //     数量: order?.Number,
-  //     单价: order?.AdjustedPrice,
-  //     "总额\nAMOUNT（USD）": order?.TotalPrice,
-  //   }));
-
-  //   const ws = XLSX.utils.json_to_sheet(rows);
-  //   const wb = XLSX.utils.book_new();
-  //   XLSX.utils.book_append_sheet(wb, ws, "订单2");
-  //   XLSX.writeFile(wb, "订单2.xlsx");
-  // };
-
-  // const printExcel3 = () => {
-  //   console.log("initialValue:", initialValues);
-  //   const rows = initialValues.map((order: any) => ({
-  //     品种名称: order?.FlowerName,
-  //     规格: order?.FlowerPacking,
-  //     数量: order?.Number,
-  //     单价: order?.AdjustedPrice,
-  //     总额: order?.TotalPrice,
-  //   }));
-
-  //   const ws = XLSX.utils.json_to_sheet(rows);
-  //   const wb = XLSX.utils.book_new();
-  //   XLSX.utils.book_append_sheet(wb, ws, "订单3");
-  //   XLSX.writeFile(wb, "订单3.xlsx");
-  // };
-
   const onFinish = async (formValue: any) => {
     console.log(formValue);
     const {
@@ -494,6 +440,7 @@ const SetOrderPage: React.FC = () => {
             </Form.Item>
           </Form>
           <SelectModal
+            flowerDate={flowerDate}
             isModalOpen={isModalOpen}
             setIsModalOpen={setIsModalOpen}
             initialValues={initialValues}

@@ -7,15 +7,15 @@ const plainOptions = [
   "图片",
   "品种",
   "植物学名",
+  "规格",
   "数量",
   "单价",
   "总额",
-  "规格",
 ];
 
 const SelectModal = (props: any) => {
   const [selectValue, setSelectValue] = useState([]);
-  const { isModalOpen, setIsModalOpen, initialValues } = props;
+  const { isModalOpen, setIsModalOpen, initialValues, flowerDate } = props;
 
   const handleOk = () => {
     exportExcel(selectValue, initialValues);
@@ -57,12 +57,13 @@ const SelectModal = (props: any) => {
         filteredItem["品种"] = item.FlowerSpecies;
       if (selectedFields.includes("植物学名"))
         filteredItem["植物学名"] = item.FlowerName;
+      if (selectedFields.includes("规格"))
+        filteredItem["规格"] = item.FlowerPacking;
       if (selectedFields.includes("数量")) filteredItem["数量"] = item.Number;
       if (selectedFields.includes("单价")) filteredItem["单价"] = item.OutPrice;
       if (selectedFields.includes("总额"))
         filteredItem["总额"] = item.TotalPrice;
-      if (selectedFields.includes("规格"))
-        filteredItem["规格"] = item.FlowerPacking;
+
       return filteredItem;
     });
 
@@ -77,7 +78,6 @@ const SelectModal = (props: any) => {
         contentHeaders.map((field: any) => row[field])
       ), // 按选中字段的顺序插入数据
       [], // 空行，用于分隔数据和尾部信息
-      [],
       [],
       ["Bank details:"],
       ["Company Name: Yunnan Hengju Import and Export Trade co., LTD"],
@@ -149,7 +149,9 @@ const SelectModal = (props: any) => {
       "export.xlsx"
     );
   };
-
+  console.log("====================================");
+  console.log(flowerDate);
+  console.log("====================================");
   return (
     <>
       <Modal
