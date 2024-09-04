@@ -116,8 +116,9 @@ const SetOrderPage: React.FC = () => {
         setCustomName(item?.split("_")[0] as any);
         setTime(item?.split("_")[1].split(".")[0] as any);
         const data = await response.json();
-        console.log(data);
+
         setInitialValues(data.orders);
+
         form.setFieldsValue({
           Order: data.orders,
           customFee: data.summary.CustomFee,
@@ -269,7 +270,10 @@ const SetOrderPage: React.FC = () => {
                             (Object.values(flowerDate[kind]) as any[]).map(
                               (i: any) =>
                                 i.Name && (
-                                  <Option key={`${i.Name}`} value={i.Name}>
+                                  <Option
+                                    key={`${i.Name}`}
+                                    value={`${i.id}_${i.Name}`}
+                                  >
                                     {i?.Name}
                                   </Option>
                                 )
@@ -287,8 +291,11 @@ const SetOrderPage: React.FC = () => {
                         >
                           {paking &&
                             (paking as any)?.map((i: any) => (
-                              <Option key={i} value={i}>
-                                {i}
+                              <Option
+                                key={i}
+                                value={`${i} ${paking_unit && paking_unit}`}
+                              >
+                                {`${i} ${paking_unit && paking_unit}`}
                               </Option>
                             ))}
                         </Select>
@@ -304,8 +311,8 @@ const SetOrderPage: React.FC = () => {
                         >
                           {weight &&
                             (weight as any)?.map((i: any) => (
-                              <Option key={i} value={i}>
-                                {`${i}weight/kg`}
+                              <Option key={i} value={i + " weight/kg"}>
+                                {i + " weight/kg"}
                               </Option>
                             ))}
                         </Select>

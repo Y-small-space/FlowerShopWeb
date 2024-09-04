@@ -17,6 +17,7 @@
     "@tabler/icons-react": "^3.11.0",
     "antd": "^5.19.4",
     "busboy": "^1.6.0",
+    "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "formidable": "^3.5.1",
     "jszip": "^3.10.1",

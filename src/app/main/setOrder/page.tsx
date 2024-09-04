@@ -117,6 +117,7 @@ const SetOrderPage: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={8}>
               <Input
+                disabled={true}
                 size="large"
                 value={date || `${year}-${month}-${day}`}
                 onChange={(e) => setDate(e.target.value)}
@@ -182,7 +183,10 @@ const SetOrderPage: React.FC = () => {
                             (Object.values(flowerDate[kind]) as any[]).map(
                               (i: any) =>
                                 i.Name && (
-                                  <Option key={`${i.Name}`} value={i.Name}>
+                                  <Option
+                                    key={`${i.Name}`}
+                                    value={`${i.Name}_${i.id}`}
+                                  >
                                     {i?.Name}
                                   </Option>
                                 )
@@ -200,8 +204,11 @@ const SetOrderPage: React.FC = () => {
                         >
                           {paking &&
                             (paking as any)?.map((i: any) => (
-                              <Option key={i} value={i}>
-                                {i}
+                              <Option
+                                key={i}
+                                value={`${i} ${paking_unit && paking_unit}`}
+                              >
+                                {`${i} ${paking_unit && paking_unit}`}
                               </Option>
                             ))}
                         </Select>
@@ -217,7 +224,7 @@ const SetOrderPage: React.FC = () => {
                         >
                           {weight &&
                             (weight as any)?.map((i: any) => (
-                              <Option key={i} value={i}>
+                              <Option key={i} value={i + " weight/kg"}>
                                 {i + " weight/kg"}
                               </Option>
                             ))}
