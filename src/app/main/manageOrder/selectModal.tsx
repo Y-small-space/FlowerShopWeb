@@ -60,7 +60,7 @@ const SelectModal = (props: any) => {
     ]);
     worksheet.addRow(["", "", "SHIPPING MARKS: N/M"]);
     worksheet.addRow([]);
-
+    let currentRow = worksheet.rowCount;
     // 添加数据行
     for (const item of data) {
       const row = [];
@@ -86,7 +86,7 @@ const SelectModal = (props: any) => {
 
           // 插入图片到单元格
           worksheet.addImage(imageId, {
-            tl: { col: 0, row: worksheet.rowCount },
+            tl: { col: 0, row: currentRow },
             ext: { width: 100, height: 100 },
           });
 
@@ -106,6 +106,7 @@ const SelectModal = (props: any) => {
       if (selectedFields.includes("总额")) row.push(item.TotalPrice);
 
       worksheet.addRow(row);
+      currentRow += 1; // 每添加一行数据，增加一行位置
     }
 
     // 添加尾部信息
