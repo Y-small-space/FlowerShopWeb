@@ -185,9 +185,9 @@ const SetOrderPage: React.FC = () => {
                                 i.Name && (
                                   <Option
                                     key={`${i.Name}`}
-                                    value={`${i.Name}_${i.id}`}
+                                    value={`${i.id}_${i.Name} ${i.Name_En}`}
                                   >
-                                    {i?.Name}
+                                    {`${i.Name} ${i.Name_En}`}
                                   </Option>
                                 )
                             )}
