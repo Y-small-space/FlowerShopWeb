@@ -42,11 +42,11 @@ export async function POST(request: NextRequest) {
 
   const orders = formValue.Order || [];
 
-  const customFee = parseInt(formValue.customFee) || 0;
-  const shippingFee = parseInt(formValue.shippingFee) || 0;
-  const packagingFee = parseInt(formValue.packagingFee) || 0;
-  const certificateFee = parseInt(formValue.certificateFee) || 0;
-  const fumigationFee = parseInt(formValue.fumigationFee) || 0;
+  const customFee = parseFloat(formValue.customFee) || 0;
+  const shippingFee = parseFloat(formValue.shippingFee) || 0;
+  const packagingFee = parseFloat(formValue.packagingFee) || 0;
+  const certificateFee = parseFloat(formValue.certificateFee) || 0;
+  const fumigationFee = parseFloat(formValue.fumigationFee) || 0;
 
   const totalMiscFee = customFee + shippingFee + packagingFee + certificateFee + fumigationFee;
 
