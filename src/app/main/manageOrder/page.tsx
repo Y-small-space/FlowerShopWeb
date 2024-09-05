@@ -35,6 +35,7 @@ const SetOrderPage: React.FC = () => {
   const item = searchParams.get("item");
   const [time, setTime] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fee, setFee] = useState<any>();
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -118,6 +119,13 @@ const SetOrderPage: React.FC = () => {
         const data = await response.json();
 
         setInitialValues(data.orders);
+        setFee({
+          customFee: data.summary.CustomFee,
+          shippingFee: data.summary.ShippingFee,
+          packagingFee: data.summary.PackagingFee,
+          certificateFee: data.summary.CertificateFee,
+          fumigationFee: data.summary.FumigationFee,
+        });
 
         form.setFieldsValue({
           Order: data.orders,
@@ -362,7 +370,7 @@ const SetOrderPage: React.FC = () => {
                             "Order",
                             name,
                             "FlowerWeight",
-                          ]);
+                          ]).split(" ")[0];
 
                           const totalWeight =
                             number && weight ? number * weight : 0;
@@ -447,6 +455,7 @@ const SetOrderPage: React.FC = () => {
             </Form.Item>
           </Form>
           <SelectModal
+            fee={fee}
             flowerDate={flowerDate}
             isModalOpen={isModalOpen}
             setIsModalOpen={setIsModalOpen}

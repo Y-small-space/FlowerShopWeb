@@ -12,24 +12,24 @@ const plainOptions = [
   "规格",
   "数量",
   "单价",
+  "单重",
+  "重量",
   "总额",
 ];
 
 const SelectModal = (props: any) => {
   const [selectValue, setSelectValue] = useState([]);
-  const { isModalOpen, setIsModalOpen, initialValues, flowerDate } = props;
-
+  const { isModalOpen, setIsModalOpen, initialValues, flowerDate, fee } = props;
   const handleOk = () => {
     exportExcel(selectValue, initialValues, flowerDate);
   };
-
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-
   const onChange = (checkedValues: any) => {
     setSelectValue(checkedValues);
   };
+
   const exportExcel = async (
     selectedFields: any,
     data: any,
@@ -70,6 +70,9 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("规格")) headers.push("规格");
     if (selectedFields.includes("数量")) headers.push("数量");
     if (selectedFields.includes("单价")) headers.push("单价 UNIT PRICE（USD）");
+    if (selectedFields.includes("单重"))
+      headers.push("单重 UNIT WEIGHT（weight/kg）");
+    if (selectedFields.includes("重量")) headers.push("重量 Weight（kg）");
     if (selectedFields.includes("总额")) headers.push("总额AMOUNT（USD）");
 
     // 插入表头
@@ -86,7 +89,9 @@ const SelectModal = (props: any) => {
         // 根据 flowerDate 获取图片 URL
         const imageUrl = `https://raw.githubusercontent.com/Y-small-space/FlowerShopWeb/main/DateBase/flawers/${
           item.FlowerSpecies
-        }/${item.FlowerSpecies}${item.FlowerName.split("_")[0]}.jpg`;
+        }/${item.FlowerSpecies}${
+          item.FlowerName.split("_")[0].split(" ")[0]
+        }.jpg`;
 
         try {
           // 下载图片为 buffer
@@ -103,10 +108,16 @@ const SelectModal = (props: any) => {
           if (selectedFields.includes("品种")) row.push(item.FlowerSpecies);
           if (selectedFields.includes("植物学名"))
             row.push(item.FlowerName?.split("_")[1]);
-          if (selectedFields.includes("规格"))
-            row.push(item.FlowerPacking?.split(" ")[0]);
+          if (selectedFields.includes("规格")) row.push(item.FlowerPacking);
           if (selectedFields.includes("数量")) row.push(item.Number);
-          if (selectedFields.includes("单价")) row.push(item.OutPrice);
+          if (selectedFields.includes("单价")) row.push(item.AdjustedPrice);
+          if (selectedFields.includes("单重")) row.push(item.FlowerWeight);
+          if (selectedFields.includes("重量"))
+            row.push(
+              (parseFloat(item.Number) * parseFloat(item.FlowerWeight)).toFixed(
+                2
+              )
+            );
           if (selectedFields.includes("总额")) row.push(item.TotalPrice);
 
           const addedRow = worksheet.addRow(row);
@@ -124,10 +135,14 @@ const SelectModal = (props: any) => {
         if (selectedFields.includes("品种")) row.push(item.FlowerSpecies);
         if (selectedFields.includes("植物学名"))
           row.push(item.FlowerName?.split("_")[1]);
-        if (selectedFields.includes("规格"))
-          row.push(item.FlowerPacking?.split(" ")[0]);
+        if (selectedFields.includes("规格")) row.push(item.FlowerPacking);
         if (selectedFields.includes("数量")) row.push(item.Number);
-        if (selectedFields.includes("单价")) row.push(item.OutPrice);
+        if (selectedFields.includes("单价")) row.push(item.AdjustedPrice);
+        if (selectedFields.includes("单重")) row.push(item.FlowerWeight);
+        if (selectedFields.includes("重量"))
+          row.push(
+            (parseFloat(item.Number) * parseFloat(item.FlowerWeight)).toFixed(2)
+          );
         if (selectedFields.includes("总额")) row.push(item.TotalPrice);
 
         // 将当前行数据添加到工作表，并设置行高
@@ -140,14 +155,130 @@ const SelectModal = (props: any) => {
 
     // 添加尾部信息
     const total = data.map((i: any) => parseFloat(i.TotalPrice));
+    console.log("====================================");
+    console.log(data);
+    console.log("====================================");
+    const weight = data.map(
+      (i: any) =>
+        parseFloat(i.FlowerWeight.split(" ")[0]) * parseFloat(i.Number)
+    );
+    console.log("====================================");
+    console.log(weight);
+    console.log("====================================");
+    const total_ = total.reduce((a: any, b: any) => a + b).toFixed(2);
+    const weight_ = weight
+      .reduce((a: any, b: any) => parseFloat(a) + parseFloat(b))
+      .toFixed(2);
+    console.log("====================================");
+    console.log(weight_);
+    console.log("====================================");
     const Total = [];
     Total.push("Sub Total");
-    Total.push(`${total.reduce((a: any, b: any) => a + b).toFixed(2)}`);
+    if (selectedFields.includes("图片")) Total.push("");
+    if (selectedFields.includes("品种")) Total.push("");
+    if (selectedFields.includes("植物学名")) Total.push("");
+    if (selectedFields.includes("规格")) Total.push("");
+    if (selectedFields.includes("数量")) Total.push("");
+    if (selectedFields.includes("单价")) Total.push("");
+    if (selectedFields.includes("单重")) Total.push("");
+    Total.pop();
+    if (selectedFields.includes("重量")) Total.push(weight_);
+    if (selectedFields.includes("总额")) Total.push(total_);
     worksheet.addRow(Total);
     worksheet.addRow(["Freight Cost"]);
     worksheet.addRow(["customs declaration service"]);
     worksheet.addRow(["Packing"]);
-    worksheet.addRow(["TOTAL"]);
+    worksheet.addRow(["Sub CustomFee"]);
+
+    const CustomFee = [];
+    CustomFee.push("报关服务费");
+    if (selectedFields.includes("图片")) CustomFee.push("");
+    if (selectedFields.includes("品种")) CustomFee.push("");
+    if (selectedFields.includes("植物学名")) CustomFee.push("");
+    if (selectedFields.includes("规格")) CustomFee.push("");
+    if (selectedFields.includes("数量")) CustomFee.push("");
+    if (selectedFields.includes("单价")) CustomFee.push("");
+    if (selectedFields.includes("单重")) CustomFee.push("");
+    if (selectedFields.includes("重量")) CustomFee.push("");
+    CustomFee.pop();
+    CustomFee.push(fee.customFee);
+    worksheet.addRow(CustomFee);
+
+    const ShippingFee = [];
+    ShippingFee.push("运费");
+    if (selectedFields.includes("图片")) ShippingFee.push("");
+    if (selectedFields.includes("品种")) ShippingFee.push("");
+    if (selectedFields.includes("植物学名")) ShippingFee.push("");
+    if (selectedFields.includes("规格")) ShippingFee.push("");
+    if (selectedFields.includes("数量")) ShippingFee.push("");
+    if (selectedFields.includes("单价")) ShippingFee.push("");
+    if (selectedFields.includes("单重")) ShippingFee.push("");
+    if (selectedFields.includes("重量")) ShippingFee.push("");
+    ShippingFee.pop();
+    ShippingFee.push(fee.shippingFee);
+    worksheet.addRow(ShippingFee);
+
+    const PackagingFee = [];
+    PackagingFee.push("打包杂费");
+    if (selectedFields.includes("图片")) PackagingFee.push("");
+    if (selectedFields.includes("品种")) PackagingFee.push("");
+    if (selectedFields.includes("植物学名")) PackagingFee.push("");
+    if (selectedFields.includes("规格")) PackagingFee.push("");
+    if (selectedFields.includes("数量")) PackagingFee.push("");
+    if (selectedFields.includes("单价")) PackagingFee.push("");
+    if (selectedFields.includes("单重")) PackagingFee.push("");
+    if (selectedFields.includes("重量")) PackagingFee.push("");
+    PackagingFee.pop();
+    PackagingFee.push(fee.packagingFee);
+    worksheet.addRow(PackagingFee);
+
+    const CertificateFee = [];
+    CertificateFee.push("证书费");
+    if (selectedFields.includes("图片")) CertificateFee.push("");
+    if (selectedFields.includes("品种")) CertificateFee.push("");
+    if (selectedFields.includes("植物学名")) CertificateFee.push("");
+    if (selectedFields.includes("规格")) CertificateFee.push("");
+    if (selectedFields.includes("数量")) CertificateFee.push("");
+    if (selectedFields.includes("单价")) CertificateFee.push("");
+    if (selectedFields.includes("单重")) CertificateFee.push("");
+    if (selectedFields.includes("重量")) CertificateFee.push("");
+    CertificateFee.pop();
+    CertificateFee.push(fee.certificateFee);
+    worksheet.addRow(CertificateFee);
+
+    const FumigationFee = [];
+    FumigationFee.push("熏蒸费");
+    if (selectedFields.includes("图片")) FumigationFee.push("");
+    if (selectedFields.includes("品种")) FumigationFee.push("");
+    if (selectedFields.includes("植物学名")) FumigationFee.push("");
+    if (selectedFields.includes("规格")) FumigationFee.push("");
+    if (selectedFields.includes("数量")) FumigationFee.push("");
+    if (selectedFields.includes("单价")) FumigationFee.push("");
+    if (selectedFields.includes("单重")) FumigationFee.push("");
+    if (selectedFields.includes("重量")) FumigationFee.push("");
+    FumigationFee.pop();
+    FumigationFee.push(fee.fumigationFee);
+    worksheet.addRow(FumigationFee);
+
+    const SUM = [];
+    SUM.push("TOTAL");
+    const sum =
+      parseFloat(fee.customFee) +
+      parseFloat(fee.shippingFee) +
+      parseFloat(fee.packagingFee) +
+      parseFloat(fee.certificateFee) +
+      parseFloat(fee.fumigationFee);
+    if (selectedFields.includes("图片")) SUM.push("");
+    if (selectedFields.includes("品种")) SUM.push("");
+    if (selectedFields.includes("植物学名")) SUM.push("");
+    if (selectedFields.includes("规格")) SUM.push("");
+    if (selectedFields.includes("数量")) SUM.push("");
+    if (selectedFields.includes("单价")) SUM.push("");
+    if (selectedFields.includes("单重")) SUM.push("");
+    if (selectedFields.includes("重量")) SUM.push("");
+    SUM.pop();
+    SUM.push((sum + parseFloat(total_)).toFixed(2));
+    worksheet.addRow(SUM);
 
     worksheet.addRow([]);
     worksheet.addRow(["Bank details:"]);
@@ -161,7 +292,7 @@ const SelectModal = (props: any) => {
       "Bank Add: CHONGREN STREET 1, KUNMING CITY, YUNNAN PROVINCE",
     ]);
 
-    // // 保存 Excel 文件
+    // 保存 Excel 文件
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), "export_with_images.xlsx");
   };
