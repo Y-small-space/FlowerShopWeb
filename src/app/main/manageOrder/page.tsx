@@ -194,37 +194,38 @@ const SetOrderPage: React.FC = () => {
             name="dynamic_form_nest_item"
             onFinish={onFinish}
             autoComplete="off"
+            layout="vertical"
           >
             <Form.Item
               style={{ width: "20%" }}
               label="报关服务费"
               name="customFee"
             >
-              <Input type="number" placeholder="请输入报关服务费" />
+              <Input placeholder="请输入报关服务费" addonAfter={<>USD</>} />
             </Form.Item>
             <Form.Item style={{ width: "20%" }} label="运费" name="shippingFee">
-              <Input type="number" placeholder="请输入运费" />
+              <Input placeholder="请输入运费" addonAfter={<>USD</>} />
             </Form.Item>
             <Form.Item
               style={{ width: "20%" }}
               label="打包杂费"
               name="packagingFee"
             >
-              <Input type="number" placeholder="请输入打包杂费" />
+              <Input placeholder="请输入打包杂费" addonAfter={<>USD</>} />
             </Form.Item>
             <Form.Item
               style={{ width: "20%" }}
               label="证书费"
               name="certificateFee"
             >
-              <Input type="number" placeholder="请输入证书费" />
+              <Input placeholder="请输入证书费" addonAfter={<>USD</>} />
             </Form.Item>
             <Form.Item
               style={{ width: "20%" }}
               label="熏蒸费"
               name="fumigationFee"
             >
-              <Input type="number" placeholder="请输入熏蒸费" />
+              <Input placeholder="请输入熏蒸费" addonAfter={<>USD</>} />
             </Form.Item>
             <Form.List name="Order">
               {(fields, { add, remove }) => (
@@ -232,25 +233,33 @@ const SetOrderPage: React.FC = () => {
                   {fields.map(({ key, name, ...restField }) => (
                     <Space
                       key={key}
-                      style={{ display: "flex", marginBottom: 8 }}
+                      style={{
+                        display: "flex",
+                        marginBottom: 8,
+                        overflow: "auto",
+                      }}
                       align="baseline"
                     >
                       <Form.Item
+                        label="PackageID"
                         {...restField}
                         name={[name, "PackageID"]}
                         rules={[{ required: true, message: "PackageID为必填" }]}
                       >
                         <Input
-                          style={{ width: "4rem" }}
+                          style={{ width: "3rem" }}
                           placeholder="PackageID"
                         />
                       </Form.Item>
                       <Form.Item
+                        label="种类"
                         {...restField}
                         name={[name, "FlowerSpecies"]}
                         rules={[{ required: true, message: "花的种类为必填" }]}
                       >
                         <Select
+                          showSearch
+                          style={{ width: 10 }}
                           className="form-item"
                           placeholder="选择花的种类"
                           onChange={(i) => setKind(i)}
@@ -263,9 +272,11 @@ const SetOrderPage: React.FC = () => {
                         </Select>
                       </Form.Item>
                       <Form.Item
+                        label="名称"
                         {...restField}
                         name={[name, "FlowerName"]}
                         rules={[{ required: true, message: "花的名称为必填" }]}
+                        style={{ width: "23rem" }}
                       >
                         <Select
                           className="form-item"
@@ -280,15 +291,16 @@ const SetOrderPage: React.FC = () => {
                                 i.Name && (
                                   <Option
                                     key={`${i.Name}`}
-                                    value={`${i.id}_${i.Name} ${i.Name_En}`}
+                                    value={`${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}`}
                                   >
-                                    {`${i.Name} ${i.Name_En}`}
+                                    {`${i.Name}_${i.Name_En}_${i.BotanicalName}`}
                                   </Option>
                                 )
                             )}
                         </Select>
                       </Form.Item>
                       <Form.Item
+                        label="规格"
                         {...restField}
                         name={[name, "FlowerPacking"]}
                         rules={[{ required: true, message: "花的规格为必填" }]}
@@ -309,11 +321,12 @@ const SetOrderPage: React.FC = () => {
                         </Select>
                       </Form.Item>
                       <Form.Item
+                        label="单重"
                         {...restField}
                         name={[name, "FlowerWeight"]}
                         rules={[{ required: true, message: "花的重量为必填" }]}
                       >
-                        <Select
+                        {/* <Select
                           className="form-item"
                           placeholder="选择花的重量"
                         >
@@ -323,28 +336,48 @@ const SetOrderPage: React.FC = () => {
                                 {i + " weight/kg"}
                               </Option>
                             ))}
-                        </Select>
+                        </Select> */}
+                        <Input
+                          style={{ width: "12rem" }}
+                          placeholder="单重"
+                          addonAfter={<>weight/kg</>}
+                        />
                       </Form.Item>
                       <Form.Item
+                        label="数量"
                         {...restField}
                         name={[name, "Number"]}
                         rules={[{ required: true, message: "数量为必填" }]}
                       >
-                        <Input style={{ width: "4rem" }} placeholder="数量" />
+                        <Input
+                          style={{ width: "6rem" }}
+                          placeholder="数量"
+                          addonAfter={<>个</>}
+                        />
                       </Form.Item>
                       <Form.Item
+                        label="进价"
                         {...restField}
                         name={[name, "InPrice"]}
                         rules={[{ required: true, message: "进价为必填" }]}
                       >
-                        <Input style={{ width: "4rem" }} placeholder="进价" />
+                        <Input
+                          style={{ width: "9rem" }}
+                          placeholder="进价"
+                          addonAfter={<>USD</>}
+                        />
                       </Form.Item>
                       <Form.Item
+                        label="售价"
                         {...restField}
                         name={[name, "OutPrice"]}
                         rules={[{ required: true, message: "售价为必填" }]}
                       >
-                        <Input style={{ width: "4rem" }} placeholder="售价" />
+                        <Input
+                          style={{ width: "9rem" }}
+                          placeholder="售价"
+                          addonAfter={<>USD</>}
+                        />
                       </Form.Item>
                       <Form.Item
                         shouldUpdate={(prevValues, curValues) =>
@@ -370,7 +403,7 @@ const SetOrderPage: React.FC = () => {
                             "Order",
                             name,
                             "FlowerWeight",
-                          ]).split(" ")[0];
+                          ])?.split(" ")[0];
 
                           const totalWeight =
                             number && weight ? number * weight : 0;
@@ -411,16 +444,16 @@ const SetOrderPage: React.FC = () => {
                                 flexDirection: "column",
                               }}
                             >
-                              <span>总额: {amount.toFixed(2)}</span>
-                              <span>总重: {totalWeight.toFixed(2)}</span>
+                              <span>总额: {amount.toFixed(2)} USD</span>
+                              <span>总重: {totalWeight.toFixed(2)} Kg</span>
                               <span>
-                                均摊后的售价:{" "}
+                                均摊售价:
                                 {(adjustedPrice
                                   ? adjustedPrice
                                   : outPrice
                                 )?.toFixed(2)}
-                              </span>{" "}
-                              {/* 保留两位小数 */}
+                                USD
+                              </span>
                             </div>
                           );
                         }}

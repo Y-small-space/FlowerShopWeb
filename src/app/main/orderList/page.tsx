@@ -75,6 +75,7 @@ const OrderList: React.FC = () => {
         const data = await response.json();
         message.error(`删除失败: ${data.error}`);
       }
+      fetchFileNames("/DateBase/orders");
     } catch (err) {
       message.error("删除订单时出错");
       console.error("Error deleting order:", err);

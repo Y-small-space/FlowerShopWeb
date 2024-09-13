@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Button, Group, FileInput, Alert } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { Notification } from "@mantine/core";
+import { message } from "antd";
+import Loading from "@/app/components/loading";
 
 const PushDatePage = () => {
   const [flowerExcel, setFlowerExcel] = useState<File | null>(null);
@@ -45,7 +47,7 @@ const PushDatePage = () => {
     console.log(response);
     console.log("====================================");
     if (response.status === 200) {
-      setDisplay("");
+      message.success("上传成功");
     } else {
       alert("上传错误");
     }
@@ -64,45 +66,48 @@ const PushDatePage = () => {
   }
   return (
     <div>
-      <Demo />
       <Text fw={700} size="xl">
-        创建订单
+        上传数据
       </Text>
       <br />
-      <form onSubmit={handleSubmit}>
-        <Group
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <FileInput
-            label="花数据的Excel文件"
-            placeholder="请传入Excel文件"
-            onChange={handleFlowerExcelChange}
-            accept=".xlsx, .xls"
-            style={{ width: "300px" }}
-            required
-          />
-          <FileInput
-            label="花图片文件夹的压缩包"
-            placeholder="请传入压缩包"
-            onChange={handleZipFileChange}
-            accept=".zip, .rar"
-            style={{ width: "300px" }}
-            required
-          />
-          <Button
-            type="submit"
-            variant="gradient"
-            gradient={{ from: "blue", to: "grape", deg: 90 }}
-            loading={loading}
+      {loading ? (
+        <Loading />
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <Group
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+            }}
           >
-            上传
-          </Button>
-        </Group>
-      </form>
+            <FileInput
+              label="花数据的Excel文件"
+              placeholder="请传入Excel文件"
+              onChange={handleFlowerExcelChange}
+              accept=".xlsx, .xls"
+              style={{ width: "300px" }}
+              required
+            />
+            <FileInput
+              label="花图片文件夹的压缩包"
+              placeholder="请传入压缩包"
+              onChange={handleZipFileChange}
+              accept=".zip, .rar"
+              style={{ width: "300px" }}
+              required
+            />
+            <Button
+              type="submit"
+              variant="gradient"
+              gradient={{ from: "blue", to: "grape", deg: 90 }}
+              loading={loading}
+            >
+              上传
+            </Button>
+          </Group>
+        </form>
+      )}
     </div>
   );
 };

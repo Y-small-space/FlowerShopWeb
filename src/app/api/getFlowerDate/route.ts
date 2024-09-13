@@ -11,7 +11,6 @@ export async function GET() {
       repo: 'FlowerShopWeb',
       path: 'DateBase/flawers/flower.xlsx',
     });
-
     // 解码 base64 内容
     if (Array.isArray(response.data)) {
       throw new Error("Path is a directory or invalid.");
@@ -40,7 +39,7 @@ export async function GET() {
 
 function parseExcelToJSON(workbook: XLSX.WorkBook) {
   const result: { [sheetName: string]: any[] } = {};
-
+  console.log(workbook)
   workbook.SheetNames.forEach(sheetName => {
     const sheet = workbook.Sheets[sheetName];
     result[sheetName] = XLSX.utils.sheet_to_json(sheet);

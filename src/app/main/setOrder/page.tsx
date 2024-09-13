@@ -25,6 +25,7 @@ const SetOrderPage: React.FC = () => {
   const [weight, setWeight] = useState();
   const [customName, setCustomName] = useState("");
   const [date, setDate] = useState("");
+  const [flowerDateOption, setFlowerDateOption] = useState<any>();
 
   const onFinish = async (formValue: any) => {
     console.log(formValue);
@@ -45,6 +46,7 @@ const SetOrderPage: React.FC = () => {
           day,
           formValue,
         }),
+        cache: "no-store",
       });
       if (response.ok) {
         message.success("保存成功！！！");
@@ -66,11 +68,15 @@ const SetOrderPage: React.FC = () => {
           setSpecies(Object.keys(data));
           setFlowerDate(data);
         }
+        console.log("====================================");
+        console.log(data);
+        console.log("====================================");
         setLoading(false);
       } catch (err) {
         setLoading(false);
       }
     }
+
     fetchFlowerDate();
   }, []);
 
@@ -94,6 +100,18 @@ const SetOrderPage: React.FC = () => {
     setPaking(paking);
     setPakingUnit(paking_unit[0]);
     setWeight(weight);
+  }, [kind]);
+
+  useEffect(() => {
+    setFlowerDateOption(
+      flowerDate &&
+        kind &&
+        Object.values(flowerDate[kind]).map((i: any) => ({
+          // key: `${i.Name}`,
+          value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}`,
+          label: `${i.Name}_${i.Name_En}_${i.BotanicalName}`,
+        }))
+    );
   }, [kind]);
 
   return (
@@ -173,10 +191,17 @@ const SetOrderPage: React.FC = () => {
                         rules={[{ required: true, message: "花的名称为必填" }]}
                       >
                         <Select
+                          showSearch
+                          filterOption={(input: any, option: any) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
                           placeholder="选择花的名称"
-                          style={{ minWidth: "8rem" }}
+                          style={{ maxWidth: "18rem" }}
+                          options={flowerDateOption}
                         >
-                          {flowerDate &&
+                          {/* {flowerDate &&
                             kind &&
                             flowerDate[kind] &&
                             Object.values(flowerDate[kind]) &&
@@ -190,7 +215,7 @@ const SetOrderPage: React.FC = () => {
                                     {`${i.Name} ${i.Name_En}`}
                                   </Option>
                                 )
-                            )}
+                            )} */}
                         </Select>
                       </Form.Item>
                       <Form.Item
@@ -209,23 +234,6 @@ const SetOrderPage: React.FC = () => {
                                 value={`${i} ${paking_unit && paking_unit}`}
                               >
                                 {`${i} ${paking_unit && paking_unit}`}
-                              </Option>
-                            ))}
-                        </Select>
-                      </Form.Item>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "FlowerWeight"]}
-                        rules={[{ required: true, message: "花的单重为必填" }]}
-                      >
-                        <Select
-                          placeholder="选择花的单重"
-                          style={{ minWidth: "8rem" }}
-                        >
-                          {weight &&
-                            (weight as any)?.map((i: any) => (
-                              <Option key={i} value={i + " weight/kg"}>
-                                {i + " weight/kg"}
                               </Option>
                             ))}
                         </Select>

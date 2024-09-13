@@ -19,7 +19,7 @@ export default function MainLayout({
       navbar={{
         width: isSmallScreen ? 250 : 300, // 设置不同屏幕下的导航栏宽度
         breakpoint: "sm",
-        collapsed: { mobile: !opened }, // 在移动设备上根据状态折叠导航栏
+        collapsed: { mobile: !opened, desktop: !opened }, // 在移动设备上根据状态折叠导航栏
       }}
       padding="md"
       styles={(theme) => ({
@@ -41,19 +41,17 @@ export default function MainLayout({
           }}
         >
           FlowerShop
-          {isSmallScreen && (
-            <button
-              onClick={toggle}
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                cursor: "pointer",
-                color: "white",
-              }}
-            >
-              {opened ? "关闭导航" : "打开导航"}
-            </button>
-          )}
+          <button
+            onClick={toggle}
+            style={{
+              backgroundColor: "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: "white",
+            }}
+          >
+            {opened ? "关闭导航" : "打开导航"}
+          </button>
         </Group>
       </AppShell.Header>
 
