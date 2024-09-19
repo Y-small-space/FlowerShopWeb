@@ -7,7 +7,6 @@ import axios from "axios";
 
 const plainOptions = [
   "图片",
-  "品种",
   "名称",
   "植物学名",
   "规格",
@@ -69,7 +68,6 @@ const SelectModal = (props: any) => {
     // 定义表头
     const headers = [];
     if (selectedFields.includes("图片")) headers.push("图片");
-    if (selectedFields.includes("品种")) headers.push("品种");
     if (selectedFields.includes("名称")) headers.push("名称");
     if (selectedFields.includes("植物学名")) headers.push("植物学名");
     if (selectedFields.includes("规格")) headers.push("规格");
@@ -112,7 +110,6 @@ const SelectModal = (props: any) => {
             extension: "jpeg",
           });
           row.push(""); // 在图片单元格填充一个空字符串
-          if (selectedFields.includes("品种")) row.push(item.FlowerSpecies);
           if (selectedFields.includes("名称"))
             row.push(
               `${item.FlowerName?.split("_")[1]} ${
@@ -150,7 +147,6 @@ const SelectModal = (props: any) => {
         }
       } else {
         // 继续添加数据列
-        if (selectedFields.includes("品种")) row.push(item.FlowerSpecies);
         if (selectedFields.includes("名称"))
           row.push(
             `${item.FlowerName?.split("_")[1]} ${
@@ -193,7 +189,6 @@ const SelectModal = (props: any) => {
     const Total = [];
     Total.push("Sub Total");
     if (selectedFields.includes("图片")) Total.push("");
-    if (selectedFields.includes("品种")) Total.push("");
     if (selectedFields.includes("名称")) Total.push("");
     if (selectedFields.includes("植物学名")) Total.push("");
     if (selectedFields.includes("规格")) Total.push("");
@@ -213,7 +208,6 @@ const SelectModal = (props: any) => {
     const CustomFee = [];
     CustomFee.push("报关服务费");
     if (selectedFields.includes("图片")) CustomFee.push("");
-    if (selectedFields.includes("品种")) CustomFee.push("");
     if (selectedFields.includes("名称")) CustomFee.push("");
     if (selectedFields.includes("植物学名")) CustomFee.push("");
     if (selectedFields.includes("规格")) CustomFee.push("");
@@ -229,7 +223,6 @@ const SelectModal = (props: any) => {
     const ShippingFee = [];
     ShippingFee.push("运费");
     if (selectedFields.includes("图片")) ShippingFee.push("");
-    if (selectedFields.includes("品种")) ShippingFee.push("");
     if (selectedFields.includes("名称")) ShippingFee.push("");
     if (selectedFields.includes("植物学名")) ShippingFee.push("");
     if (selectedFields.includes("规格")) ShippingFee.push("");
@@ -245,7 +238,6 @@ const SelectModal = (props: any) => {
     const PackagingFee = [];
     PackagingFee.push("打包杂费");
     if (selectedFields.includes("图片")) PackagingFee.push("");
-    if (selectedFields.includes("品种")) PackagingFee.push("");
     if (selectedFields.includes("名称")) PackagingFee.push("");
     if (selectedFields.includes("植物学名")) PackagingFee.push("");
     if (selectedFields.includes("规格")) PackagingFee.push("");
@@ -261,7 +253,6 @@ const SelectModal = (props: any) => {
     const CertificateFee = [];
     CertificateFee.push("证书费");
     if (selectedFields.includes("图片")) CertificateFee.push("");
-    if (selectedFields.includes("品种")) CertificateFee.push("");
     if (selectedFields.includes("名称")) CertificateFee.push("");
     if (selectedFields.includes("植物学名")) CertificateFee.push("");
     if (selectedFields.includes("规格")) CertificateFee.push("");
@@ -277,7 +268,6 @@ const SelectModal = (props: any) => {
     const FumigationFee = [];
     FumigationFee.push("熏蒸费");
     if (selectedFields.includes("图片")) FumigationFee.push("");
-    if (selectedFields.includes("品种")) FumigationFee.push("");
     if (selectedFields.includes("名称")) FumigationFee.push("");
     if (selectedFields.includes("植物学名")) FumigationFee.push("");
     if (selectedFields.includes("规格")) FumigationFee.push("");
@@ -299,7 +289,6 @@ const SelectModal = (props: any) => {
       parseFloat(fee.certificateFee) +
       parseFloat(fee.fumigationFee);
     if (selectedFields.includes("图片")) SUM.push("");
-    if (selectedFields.includes("品种")) SUM.push("");
     if (selectedFields.includes("名称")) SUM.push("");
     if (selectedFields.includes("植物学名")) SUM.push("");
     if (selectedFields.includes("规格")) SUM.push("");

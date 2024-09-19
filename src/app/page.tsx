@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 export default function Home() {
   useEffect(() => {
-    redirect("/main/uploadPage");
+    redirect("/main/setOrder");
   }, []);
   return (
     <MantineProvider>

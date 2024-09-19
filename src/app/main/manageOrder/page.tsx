@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Button, Input, Form, Space, Select, message } from "antd";
+import { Button, Input, Form, Space, Select, message, Table } from "antd";
 import {
   MinusCircleOutlined,
   PlusOutlined,
@@ -22,8 +22,6 @@ const { Option } = Select;
 
 const SetOrderPage: React.FC = () => {
   const [flowerDate, setFlowerDate] = useState();
-  const [species, setSpecies] = useState<any[]>();
-  const [kind, setKind] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [paking, setPaking] = useState();
   const [paking_unit, setPakingUnit] = useState();
@@ -36,6 +34,7 @@ const SetOrderPage: React.FC = () => {
   const [time, setTime] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fee, setFee] = useState<any>();
+  const [flowerDateOption, setFlowerDateOption] = useState<any>();
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -95,9 +94,44 @@ const SetOrderPage: React.FC = () => {
         const data = await response.json();
 
         console.log(data);
+        const result: any = [];
+        const packing: any = [];
+        Object.values(data).forEach((i: any) => {
+          result.push(...i);
+        });
+        const one = Object.values(data).map((i: any) => i[0]);
+        console.log("====================================");
+        console.log(one);
+        console.log("====================================");
+        one.forEach((i: any) => {
+          Object.keys(i).forEach((p: any) => {
+            if (
+              String(p)?.includes("Packing") &&
+              !String(p)?.includes("Packing_Unit")
+            ) {
+              packing.push(`${i[p]} ${i["Packing_Unit"]}`);
+            }
+          });
+        });
+        setPaking(
+          packing.map((i: any) => ({
+            key: i,
+            value: i,
+            label: i,
+          }))
+        );
+        console.log("====================================");
+        console.log(packing);
+        console.log("====================================");
+        setFlowerDateOption(
+          result.map((i: any) => ({
+            key: `${i.Name}`,
+            value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}`,
+            label: `${i.Name}_${i.Name_En}_${i.BotanicalName}`,
+          }))
+        );
 
         if (data) {
-          setSpecies(Object.keys(data));
           setFlowerDate(data);
         }
         setLoading(false);
@@ -141,26 +175,6 @@ const SetOrderPage: React.FC = () => {
     }
     fetchOrderData();
   }, [form]);
-
-  useEffect(() => {
-    if (!kind || !flowerDate) return;
-    const paking_key = Object.keys(flowerDate[kind][0]).filter(
-      (i) => i.includes("Packing") && !i.includes("Unit")
-    );
-    const paking_unit_key = Object.keys(flowerDate[kind][0]).filter((i) =>
-      i.includes("Packing_Unit")
-    );
-    const weight_key = Object.keys(flowerDate[kind][0]).filter((i) =>
-      i.includes("weight")
-    );
-    const paking: any = paking_key.map((i) => flowerDate[kind][0][i]);
-    const paking_unit = paking_unit_key.map((i) => flowerDate[kind][0][i]);
-    const weight: any = weight_key.map((i) => flowerDate[kind][0][i]);
-
-    setPaking(paking);
-    setPakingUnit(paking_unit[0]);
-    setWeight(weight);
-  }, [kind]);
 
   return (
     <>
@@ -244,7 +258,6 @@ const SetOrderPage: React.FC = () => {
                         label="PackageID"
                         {...restField}
                         name={[name, "PackageID"]}
-                        rules={[{ required: true, message: "PackageID为必填" }]}
                       >
                         <Input
                           style={{ width: "3rem" }}
@@ -252,52 +265,39 @@ const SetOrderPage: React.FC = () => {
                         />
                       </Form.Item>
                       <Form.Item
-                        label="种类"
-                        {...restField}
-                        name={[name, "FlowerSpecies"]}
-                        rules={[{ required: true, message: "花的种类为必填" }]}
-                      >
-                        <Select
-                          showSearch
-                          style={{ width: 10 }}
-                          className="form-item"
-                          placeholder="选择花的种类"
-                          onChange={(i) => setKind(i)}
-                        >
-                          {species?.map((i) => (
-                            <Option key={`${i}`} value={i}>
-                              {i}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                      <Form.Item
                         label="名称"
                         {...restField}
                         name={[name, "FlowerName"]}
                         rules={[{ required: true, message: "花的名称为必填" }]}
-                        style={{ width: "23rem" }}
                       >
                         <Select
-                          className="form-item"
+                          showSearch
+                          filterOption={(input: any, option: any) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
                           placeholder="选择花的名称"
-                        >
-                          {flowerDate &&
-                            kind &&
-                            flowerDate[kind] &&
-                            Object.values(flowerDate[kind]) &&
-                            (Object.values(flowerDate[kind]) as any[]).map(
-                              (i: any) =>
-                                i.Name && (
-                                  <Option
-                                    key={`${i.Name}`}
-                                    value={`${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}`}
-                                  >
-                                    {`${i.Name}_${i.Name_En}_${i.BotanicalName}`}
-                                  </Option>
-                                )
-                            )}
-                        </Select>
+                          style={{ maxWidth: "10rem" }}
+                          options={flowerDateOption}
+                        ></Select>
+                      </Form.Item>
+                      <Form.Item
+                        label="规格"
+                        {...restField}
+                        name={[name, "FlowerPacking"]}
+                      >
+                        <Select
+                          showSearch
+                          filterOption={(input: any, option: any) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          placeholder="选择花的规格"
+                          style={{ maxWidth: "10rem" }}
+                          options={paking}
+                        ></Select>
                       </Form.Item>
                       <Form.Item
                         label="单重"
@@ -305,17 +305,6 @@ const SetOrderPage: React.FC = () => {
                         name={[name, "FlowerWeight"]}
                         rules={[{ required: true, message: "花的重量为必填" }]}
                       >
-                        {/* <Select
-                          className="form-item"
-                          placeholder="选择花的重量"
-                        >
-                          {weight &&
-                            (weight as any)?.map((i: any) => (
-                              <Option key={i} value={i + " weight/kg"}>
-                                {i + " weight/kg"}
-                              </Option>
-                            ))}
-                        </Select> */}
                         <Input
                           style={{ width: "12rem" }}
                           placeholder="单重"
@@ -359,6 +348,7 @@ const SetOrderPage: React.FC = () => {
                         />
                       </Form.Item>
                       <Form.Item
+                        label="均摊售价｜总额｜总重"
                         shouldUpdate={(prevValues, curValues) =>
                           prevValues.Order[name]?.Number !==
                             curValues.Order[name]?.Number ||
@@ -416,24 +406,63 @@ const SetOrderPage: React.FC = () => {
                               : number && outPrice
                               ? number * outPrice
                               : 0;
+
+                          const columns = [
+                            {
+                              title: "均摊售价",
+                              dataIndex: "adjustedPrice",
+                              key: "adjustedPrice",
+                            },
+                            {
+                              title: "总额",
+                              dataIndex: "amount",
+                              key: "amount",
+                            },
+                            {
+                              title: "总重",
+                              dataIndex: "totalWeight",
+                              key: "totalWeight",
+                            },
+                          ];
+                          const data = [
+                            {
+                              key: key,
+                              amount: amount.toFixed(2),
+                              adjustedPrice: (
+                                (adjustedPrice ? adjustedPrice : outPrice) || 0
+                              )?.toFixed(2),
+                              totalWeight: totalWeight.toFixed(2),
+                            },
+                          ];
                           return (
-                            <div
+                            // <div
+                            //   style={{
+                            //     display: "flex",
+                            //   }}
+                            // >
+                            //   <span>
+                            //     总额: {amount.toFixed(2)} USD 总重:{" "}
+                            //     {totalWeight.toFixed(2)} Kg 均摊售价:
+                            //     {(adjustedPrice
+                            //       ? adjustedPrice
+                            //       : outPrice
+                            //     )?.toFixed(2)}{" "}
+                            //     USD
+                            //   </span>
+                            // </div>
+                            <Table
                               style={{
-                                display: "flex",
-                                flexDirection: "column",
+                                transform: "0px -10px",
+                                fontSize: "10px",
+                                backgroundColor: "transparent",
                               }}
-                            >
-                              <span>总额: {amount.toFixed(2)} USD</span>
-                              <span>总重: {totalWeight.toFixed(2)} Kg</span>
-                              <span>
-                                均摊售价:
-                                {(adjustedPrice
-                                  ? adjustedPrice
-                                  : outPrice
-                                )?.toFixed(2)}
-                                USD
-                              </span>
-                            </div>
+                              size="small"
+                              columns={columns}
+                              dataSource={data}
+                              pagination={false}
+                              showHeader={false}
+                              bordered
+                            />
                           );
                         }}
                       </Form.Item>

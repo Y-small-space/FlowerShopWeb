@@ -8,27 +8,29 @@ import {
 } from "@ant-design/icons";
 import { Text } from "@mantine/core";
 import Loading from "@/app/components/loading";
+import { redirect } from "next/navigation";
 
 const now = new Date();
 const year = now.getFullYear();
-const month = now.getMonth() + 1; // 月份从0开始，所以要加1
+const month = now.getMonth() + 1;
 const day = now.getDate();
 const { Option } = Select;
 
 const SetOrderPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [customName, setCustomName] = useState("");
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(`${year}-${month}-${day}`);
   const [flowerDateOption, setFlowerDateOption] = useState<any>();
+  const [saveStatus, setSaveStatus] = useState<
+    "success" | "failed" | "pending"
+  >("pending");
+  const [form] = Form.useForm();
 
-  const onFinish = async (formValue: any) => {
-    console.log(formValue);
-
+  const saveData = async (formValue: any) => {
     if (!customName) {
       message.error("客户姓名为必填！！！");
       return;
     }
-    setLoading(true);
     try {
       const response = await fetch("/api/uploadOrderExcel", {
         method: "POST",
@@ -43,13 +45,27 @@ const SetOrderPage: React.FC = () => {
         cache: "no-store",
       });
       if (response.ok) {
-        message.success("保存成功！！！");
+        setSaveStatus("success"); // 保存成功，设为绿色
+      } else {
+        setSaveStatus("failed"); // 保存失败，设为灰色
       }
-      setLoading(false);
     } catch (error: any) {
-      message.error(error);
-      setLoading(false);
+      setSaveStatus("failed");
+      message.error("自动保存失败");
     }
+  };
+
+  const onValuesChange = (changedValues: any, allValues: any) => {
+    // 自动保存表单数据
+    setSaveStatus("pending"); // 设为等待保存状态
+    saveData(allValues);
+  };
+
+  const handleClear = () => {
+    form.resetFields(); // 重置表单字段
+    setCustomName("");
+    setDate(`${year}-${month}-${day}`);
+    setSaveStatus("pending"); // 清空表单后状态重置
   };
 
   useEffect(() => {
@@ -59,9 +75,6 @@ const SetOrderPage: React.FC = () => {
         const response = await fetch("/api/getFlowerDate");
         const data = await response.json();
         const result: any = [];
-        console.log("====================================");
-        console.log(Object.values(data)[0]);
-        console.log("====================================");
         Object.values(data).forEach((i: any) => {
           result.push(...i);
         });
@@ -72,15 +85,25 @@ const SetOrderPage: React.FC = () => {
             label: `${i.Name}_${i.Name_En}_${i.BotanicalName}`,
           }))
         );
-        console.log(result);
         setLoading(false);
       } catch (err) {
         setLoading(false);
       }
     }
+    localStorage.setItem("id", "1");
 
     fetchFlowerDate();
   }, []);
+
+  // 显示保存状态的提示灯颜色
+  const getSaveStatusColor = () => {
+    if (saveStatus === "success") {
+      return "green"; // 保存成功，绿色
+    } else if (saveStatus === "failed") {
+      return "gray"; // 保存失败，灰色
+    }
+    return "orange"; // 正在保存，橙色
+  };
 
   return (
     <>
@@ -105,90 +128,89 @@ const SetOrderPage: React.FC = () => {
               <Input
                 disabled={true}
                 size="large"
-                value={date || `${year}-${month}-${day}`}
+                value={date}
                 onChange={(e) => setDate(e.target.value)}
               />
+            </Col>
+            <Col xs={24} sm={12} md={8}>
+              {/* 显示保存状态提示灯 */}
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <span>保存状态：</span>
+                <div
+                  style={{
+                    width: "10px",
+                    height: "10px",
+                    borderRadius: "50%",
+                    backgroundColor: getSaveStatusColor(),
+                    marginLeft: "8px",
+                  }}
+                ></div>
+              </div>
             </Col>
           </Row>
           <Form
             name="dynamic_form_nest_item"
-            onFinish={onFinish}
+            onValuesChange={onValuesChange} // 监听表单变化
             autoComplete="off"
             layout="vertical"
           >
             <Form.List name="Order">
-              {(fields, { add, remove }) => {
-                return (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Space
-                        key={key}
-                        style={{ display: "flex", marginBottom: 8 }}
-                        align="baseline"
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Space
+                      key={key}
+                      style={{ display: "flex", marginBottom: 8 }}
+                      align="baseline"
+                    >
+                      <Form.Item {...restField} name={[name, "PackageID"]}>
+                        <Input
+                          style={{ minWidth: "4rem", maxWidth: "8rem" }}
+                          placeholder="PackageID"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "FlowerName"]}
+                        rules={[{ required: true, message: "花的名称为必填" }]}
                       >
-                        <Form.Item
-                          {...restField}
-                          name={[name, "PackageID"]}
-                          rules={[
-                            { required: true, message: "PackageID为必填" },
-                          ]}
-                        >
-                          <Input
-                            style={{ minWidth: "4rem", maxWidth: "8rem" }}
-                            placeholder="PackageID"
-                          />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, "FlowerName"]}
-                          rules={[
-                            { required: true, message: "花的名称为必填" },
-                          ]}
-                        >
-                          <Select
-                            showSearch
-                            filterOption={(input: any, option: any) =>
-                              (option?.label ?? "")
-                                .toLowerCase()
-                                .includes(input.toLowerCase())
-                            }
-                            placeholder="选择花的名称"
-                            style={{ maxWidth: "10rem" }}
-                            options={flowerDateOption}
-                          >
-                            {" "}
-                          </Select>
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, "Number"]}
-                          rules={[{ required: true, message: "数量为必填" }]}
-                        >
-                          <Input style={{ width: "4rem" }} placeholder="数量" />
-                        </Form.Item>
-                        <MinusCircleOutlined onClick={() => remove(name)} />
-                      </Space>
-                    ))}
-                    <Form.Item>
-                      <Button
-                        type="dashed"
-                        onClick={() => {
-                          add();
-                        }}
-                        block
-                        icon={<PlusOutlined />}
+                        <Select
+                          showSearch
+                          filterOption={(input: any, option: any) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          placeholder="选择花的名称"
+                          style={{ maxWidth: "10rem" }}
+                          options={flowerDateOption}
+                        ></Select>
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "Number"]}
+                        rules={[{ required: true, message: "数量为必填" }]}
                       >
-                        增加订单
-                      </Button>
-                    </Form.Item>
-                  </>
-                );
-              }}
+                        <Input style={{ width: "4rem" }} placeholder="数量" />
+                      </Form.Item>
+                      <MinusCircleOutlined onClick={() => remove(name)} />
+                    </Space>
+                  ))}
+                  <Form.Item>
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
+                    >
+                      增加订单
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
             </Form.List>
             <Form.Item>
-              <Button type="primary" htmlType="submit">
-                保存
-              </Button>
+              <Button onClick={() => window.location.reload()}>清空表单</Button>
             </Form.Item>
           </Form>
         </div>
