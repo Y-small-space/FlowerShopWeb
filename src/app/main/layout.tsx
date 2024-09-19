@@ -83,7 +83,6 @@ export default function MainLayout({
           <NavLink href="/main/orderList" label="订单列表" />
         </NavLink>
       </AppShell.Navbar>
-
       <AppShell.Main style={{ overflow: "auto" }}>
         <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
       </AppShell.Main>

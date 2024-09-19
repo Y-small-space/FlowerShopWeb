@@ -300,27 +300,6 @@ const SetOrderPage: React.FC = () => {
                         </Select>
                       </Form.Item>
                       <Form.Item
-                        label="规格"
-                        {...restField}
-                        name={[name, "FlowerPacking"]}
-                        rules={[{ required: true, message: "花的规格为必填" }]}
-                      >
-                        <Select
-                          className="form-item"
-                          placeholder="选择花的规格"
-                        >
-                          {paking &&
-                            (paking as any)?.map((i: any) => (
-                              <Option
-                                key={i}
-                                value={`${i} ${paking_unit && paking_unit}`}
-                              >
-                                {`${i} ${paking_unit && paking_unit}`}
-                              </Option>
-                            ))}
-                        </Select>
-                      </Form.Item>
-                      <Form.Item
                         label="单重"
                         {...restField}
                         name={[name, "FlowerWeight"]}

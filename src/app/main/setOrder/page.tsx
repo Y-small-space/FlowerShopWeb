@@ -16,13 +16,7 @@ const day = now.getDate();
 const { Option } = Select;
 
 const SetOrderPage: React.FC = () => {
-  const [flowerDate, setFlowerDate] = useState();
-  const [species, setSpecies] = useState<any[]>();
-  const [kind, setKind] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [paking, setPaking] = useState();
-  const [paking_unit, setPakingUnit] = useState();
-  const [weight, setWeight] = useState();
   const [customName, setCustomName] = useState("");
   const [date, setDate] = useState("");
   const [flowerDateOption, setFlowerDateOption] = useState<any>();
@@ -64,13 +58,21 @@ const SetOrderPage: React.FC = () => {
       try {
         const response = await fetch("/api/getFlowerDate");
         const data = await response.json();
-        if (data) {
-          setSpecies(Object.keys(data));
-          setFlowerDate(data);
-        }
+        const result: any = [];
         console.log("====================================");
-        console.log(data);
+        console.log(Object.values(data)[0]);
         console.log("====================================");
+        Object.values(data).forEach((i: any) => {
+          result.push(...i);
+        });
+        setFlowerDateOption(
+          result.map((i: any) => ({
+            key: `${i.Name}`,
+            value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}`,
+            label: `${i.Name}_${i.Name_En}_${i.BotanicalName}`,
+          }))
+        );
+        console.log(result);
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -79,40 +81,6 @@ const SetOrderPage: React.FC = () => {
 
     fetchFlowerDate();
   }, []);
-
-  useEffect(() => {
-    if (!kind || !flowerDate) return;
-
-    const paking_key = Object.keys(flowerDate[kind][0]).filter(
-      (i) => i.includes("Packing") && !i.includes("Unit")
-    );
-    const paking_unit_key = Object.keys(flowerDate[kind][0]).filter((i) =>
-      i.includes("Packing_Unit")
-    );
-    const weight_key = Object.keys(flowerDate[kind][0]).filter((i) =>
-      i.includes("weight")
-    );
-
-    const paking: any = paking_key.map((i) => flowerDate[kind][0][i]);
-    const paking_unit = paking_unit_key.map((i) => flowerDate[kind][0][i]);
-    const weight: any = weight_key.map((i) => flowerDate[kind][0][i]);
-
-    setPaking(paking);
-    setPakingUnit(paking_unit[0]);
-    setWeight(weight);
-  }, [kind]);
-
-  useEffect(() => {
-    setFlowerDateOption(
-      flowerDate &&
-        kind &&
-        Object.values(flowerDate[kind]).map((i: any) => ({
-          // key: `${i.Name}`,
-          value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}`,
-          label: `${i.Name}_${i.Name_En}_${i.BotanicalName}`,
-        }))
-    );
-  }, [kind]);
 
   return (
     <>
@@ -142,7 +110,6 @@ const SetOrderPage: React.FC = () => {
               />
             </Col>
           </Row>
-
           <Form
             name="dynamic_form_nest_item"
             onFinish={onFinish}
@@ -150,116 +117,73 @@ const SetOrderPage: React.FC = () => {
             layout="vertical"
           >
             <Form.List name="Order">
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map(({ key, name, ...restField }) => (
-                    <Space
-                      key={key}
-                      style={{ display: "flex", marginBottom: 8 }}
-                      align="baseline"
-                    >
-                      <Form.Item
-                        {...restField}
-                        name={[name, "PackageID"]}
-                        rules={[{ required: true, message: "PackageID为必填" }]}
+              {(fields, { add, remove }) => {
+                return (
+                  <>
+                    {fields.map(({ key, name, ...restField }) => (
+                      <Space
+                        key={key}
+                        style={{ display: "flex", marginBottom: 8 }}
+                        align="baseline"
                       >
-                        <Input
-                          style={{ width: "8rem" }}
-                          placeholder="PackageID"
-                        />
-                      </Form.Item>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "FlowerSpecies"]}
-                        rules={[{ required: true, message: "花的种类为必填" }]}
-                      >
-                        <Select
-                          placeholder="选择花的种类"
-                          onChange={(i) => setKind(i)}
-                          style={{ minWidth: "8rem" }}
+                        <Form.Item
+                          {...restField}
+                          name={[name, "PackageID"]}
+                          rules={[
+                            { required: true, message: "PackageID为必填" },
+                          ]}
                         >
-                          {species?.map((i) => (
-                            <Option key={`${i}`} value={i}>
-                              {i}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Form.Item>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "FlowerName"]}
-                        rules={[{ required: true, message: "花的名称为必填" }]}
-                      >
-                        <Select
-                          showSearch
-                          filterOption={(input: any, option: any) =>
-                            (option?.label ?? "")
-                              .toLowerCase()
-                              .includes(input.toLowerCase())
-                          }
-                          placeholder="选择花的名称"
-                          style={{ maxWidth: "18rem" }}
-                          options={flowerDateOption}
+                          <Input
+                            style={{ minWidth: "4rem", maxWidth: "8rem" }}
+                            placeholder="PackageID"
+                          />
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "FlowerName"]}
+                          rules={[
+                            { required: true, message: "花的名称为必填" },
+                          ]}
                         >
-                          {/* {flowerDate &&
-                            kind &&
-                            flowerDate[kind] &&
-                            Object.values(flowerDate[kind]) &&
-                            (Object.values(flowerDate[kind]) as any[]).map(
-                              (i: any) =>
-                                i.Name && (
-                                  <Option
-                                    key={`${i.Name}`}
-                                    value={`${i.id}_${i.Name} ${i.Name_En}`}
-                                  >
-                                    {`${i.Name} ${i.Name_En}`}
-                                  </Option>
-                                )
-                            )} */}
-                        </Select>
-                      </Form.Item>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "FlowerPacking"]}
-                        rules={[{ required: true, message: "花的规格为必填" }]}
-                      >
-                        <Select
-                          placeholder="选择花的规格"
-                          style={{ minWidth: "8rem" }}
+                          <Select
+                            showSearch
+                            filterOption={(input: any, option: any) =>
+                              (option?.label ?? "")
+                                .toLowerCase()
+                                .includes(input.toLowerCase())
+                            }
+                            placeholder="选择花的名称"
+                            style={{ maxWidth: "10rem" }}
+                            options={flowerDateOption}
+                          >
+                            {" "}
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          {...restField}
+                          name={[name, "Number"]}
+                          rules={[{ required: true, message: "数量为必填" }]}
                         >
-                          {paking &&
-                            (paking as any)?.map((i: any) => (
-                              <Option
-                                key={i}
-                                value={`${i} ${paking_unit && paking_unit}`}
-                              >
-                                {`${i} ${paking_unit && paking_unit}`}
-                              </Option>
-                            ))}
-                        </Select>
-                      </Form.Item>
-                      <Form.Item
-                        {...restField}
-                        name={[name, "Number"]}
-                        rules={[{ required: true, message: "数量为必填" }]}
+                          <Input style={{ width: "4rem" }} placeholder="数量" />
+                        </Form.Item>
+                        <MinusCircleOutlined onClick={() => remove(name)} />
+                      </Space>
+                    ))}
+                    <Form.Item>
+                      <Button
+                        type="dashed"
+                        onClick={() => {
+                          add();
+                        }}
+                        block
+                        icon={<PlusOutlined />}
                       >
-                        <Input style={{ width: "4rem" }} placeholder="数量" />
-                      </Form.Item>
-                      <MinusCircleOutlined onClick={() => remove(name)} />
-                    </Space>
-                  ))}
-                  <Form.Item>
-                    <Button
-                      type="dashed"
-                      onClick={() => add()}
-                      block
-                      icon={<PlusOutlined />}
-                    >
-                      增加订单
-                    </Button>
-                  </Form.Item>
-                </>
-              )}
+                        增加订单
+                      </Button>
+                    </Form.Item>
+                  </>
+                );
+              }}
             </Form.List>
             <Form.Item>
               <Button type="primary" htmlType="submit">

@@ -2,6 +2,7 @@ import "@mantine/core/styles.css";
 import React from "react";
 import { MantineProvider, ColorSchemeScript } from "@mantine/core";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Flawors",
@@ -9,6 +10,7 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: any }) {
+  // redirect("/main/uploader");
   return (
     <html lang="en">
       <head>
