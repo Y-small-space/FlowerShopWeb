@@ -18,13 +18,38 @@ const plainOptions = [
   "总额",
 ];
 
+const map = {
+  洋桔梗: "洋桔梗 Lisianthus",
+  绣球: "绣球Hydrangeas",
+  非洲菊: "非洲菊Gerbera",
+};
+
 const SelectModal = (props: any) => {
   const [selectValue, setSelectValue] = useState([]);
   const { isModalOpen, setIsModalOpen, initialValues, flowerDate, fee } = props;
   const [loading, setLoading] = useState(false);
+
+  const addCategoryToFlowers = (flowers: any, categories: any) => {
+    return flowers.map((flower: any) => {
+      for (const category in categories) {
+        const found = categories[category].find((item: any) =>
+          flower.FlowerName.includes(item.Name)
+        );
+
+        if (found) {
+          return { ...flower, Category: category, FlowerID: found.id };
+        }
+      }
+      return flower; // 如果没有找到对应的种类，原样返回
+    });
+  };
+
+  const updatedFlowers = addCategoryToFlowers(initialValues, flowerDate);
+  console.log(updatedFlowers);
+
   const handleOk = () => {
     setLoading(true);
-    exportExcel(selectValue, initialValues, flowerDate);
+    exportExcel(selectValue, updatedFlowers, flowerDate);
   };
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -86,17 +111,14 @@ const SelectModal = (props: any) => {
 
     // 设置数据行的起始行号
     let currentRow = 9; // 数据行从第9行开始
-    console.log("====================================");
-    console.log(data);
-    console.log("====================================");
     // 添加数据行
     for (const item of data) {
       const row = [];
       if (selectedFields.includes("图片")) {
         // 根据 flowerDate 获取图片 URL
-        const imageUrl = `https://raw.githubusercontent.com/Y-small-space/FlowerShopWeb/main/DateBase/flawers/${
-          item.FlowerSpecies
-        }/${item.FlowerSpecies}${item.FlowerName.split("_")[0]}.jpg`;
+        const imageUrl = `https://raw.githubusercontent.com/Y-small-space/FlowerShopWeb/main/DateBase/flawers/${item.Category}/${item.Category}${item.FlowerID}.jpg`;
+
+        console.log(imageUrl);
 
         try {
           // 下载图片为 buffer

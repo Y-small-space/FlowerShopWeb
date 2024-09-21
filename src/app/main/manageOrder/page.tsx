@@ -24,8 +24,6 @@ const SetOrderPage: React.FC = () => {
   const [flowerDate, setFlowerDate] = useState();
   const [loading, setLoading] = useState(false);
   const [paking, setPaking] = useState();
-  const [paking_unit, setPakingUnit] = useState();
-  const [weight, setWeight] = useState();
   const [customName, setCustomName] = useState("");
   const [form] = useForm();
   const [initialValues, setInitialValues] = useState<any>([]);
@@ -41,7 +39,6 @@ const SetOrderPage: React.FC = () => {
   };
 
   const onFinish = async (formValue: any) => {
-    console.log(formValue);
     const {
       certificateFee,
       customFee,
@@ -92,17 +89,12 @@ const SetOrderPage: React.FC = () => {
       try {
         const response = await fetch("/api/getFlowerDate");
         const data = await response.json();
-
-        console.log(data);
         const result: any = [];
         const packing: any = [];
         Object.values(data).forEach((i: any) => {
           result.push(...i);
         });
         const one = Object.values(data).map((i: any) => i[0]);
-        console.log("====================================");
-        console.log(one);
-        console.log("====================================");
         one.forEach((i: any) => {
           Object.keys(i).forEach((p: any) => {
             if (
@@ -120,9 +112,6 @@ const SetOrderPage: React.FC = () => {
             label: i,
           }))
         );
-        console.log("====================================");
-        console.log(packing);
-        console.log("====================================");
         setFlowerDateOption(
           result.map((i: any) => ({
             key: `${i.Name}`,
@@ -435,21 +424,6 @@ const SetOrderPage: React.FC = () => {
                             },
                           ];
                           return (
-                            // <div
-                            //   style={{
-                            //     display: "flex",
-                            //   }}
-                            // >
-                            //   <span>
-                            //     总额: {amount.toFixed(2)} USD 总重:{" "}
-                            //     {totalWeight.toFixed(2)} Kg 均摊售价:
-                            //     {(adjustedPrice
-                            //       ? adjustedPrice
-                            //       : outPrice
-                            //     )?.toFixed(2)}{" "}
-                            //     USD
-                            //   </span>
-                            // </div>
                             <Table
                               style={{
                                 transform: "0px -10px",

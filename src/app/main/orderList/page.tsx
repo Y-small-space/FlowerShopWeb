@@ -4,17 +4,17 @@ import React, { useEffect, useState } from "react";
 import { Collapse, List, Button, message } from "antd";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/components/loading";
+import { useForm } from "antd/es/form/Form";
 
 const OrderList: React.FC = () => {
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [form] = useForm();
 
   // 获取文件名列表
   const fetchFileNames = async (directory: string) => {
     setLoading(true);
-    setError(null);
 
     try {
       const response = await fetch(
@@ -25,11 +25,9 @@ const OrderList: React.FC = () => {
 
       if (response.ok) {
         setFileNames(data);
-      } else {
-        setError(data.error);
       }
-    } catch (err) {
-      message.error("Error fetching data");
+    } catch (err: any) {
+      message.error("Error fetching data", err);
     } finally {
       setLoading(false);
     }
@@ -54,6 +52,10 @@ const OrderList: React.FC = () => {
 
   // 编辑按钮处理
   const handleEdit = (item: string) => {
+    router.push(`/main/editOrder?item=${encodeURIComponent(item)}`);
+  };
+
+  const handleComplete = (item: string) => {
     router.push(`/main/manageOrder?item=${encodeURIComponent(item)}`);
   };
 
@@ -155,7 +157,14 @@ const OrderList: React.FC = () => {
             <List.Item.Meta
               title={<a href="#">{item.slice(0, item.length - 5)}</a>}
             />
+
             <Button onClick={() => handleEdit(item)}>编辑</Button>
+            <Button
+              style={{ marginLeft: "1rem" }}
+              onClick={() => handleComplete(item)}
+            >
+              完善
+            </Button>
             <Button
               onClick={() => deleteOrder(item)}
               style={{ marginLeft: "1rem" }}
