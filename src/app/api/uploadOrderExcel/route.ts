@@ -62,7 +62,8 @@ export async function POST(request: NextRequest) {
     CertificateFee: certificateFee.toFixed(2),
     FumigationFee: fumigationFee.toFixed(2),
     TotalMiscFee: totalMiscFee.toFixed(2),
-    TotalNumber: totalNumber
+    TotalNumber: totalNumber,
+    Money: formValue.money
   };
 
   // 将订单数据和汇总信息转换为行数据

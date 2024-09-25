@@ -23,7 +23,6 @@ const { Option } = Select;
 const SetOrderPage: React.FC = () => {
   const [flowerDate, setFlowerDate] = useState();
   const [loading, setLoading] = useState(false);
-  const [paking, setPaking] = useState();
   const [customName, setCustomName] = useState("");
   const [form] = useForm();
   const [initialValues, setInitialValues] = useState<any>([]);
@@ -33,6 +32,11 @@ const SetOrderPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fee, setFee] = useState<any>();
   const [flowerDateOption, setFlowerDateOption] = useState<any>();
+  const [money, setMoney] = useState("");
+  const Option = [
+    { key: "USD", value: "USD", label: "USD" },
+    { key: "CNY", value: "CNY", label: "CNY" },
+  ];
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -47,6 +51,8 @@ const SetOrderPage: React.FC = () => {
       shippingFee,
       Order,
     } = formValue;
+    console.log(formValue);
+
     const sum =
       parseFloat(certificateFee) +
       parseFloat(customFee) +
@@ -90,32 +96,13 @@ const SetOrderPage: React.FC = () => {
         const response = await fetch("/api/getFlowerDate");
         const data = await response.json();
         const result: any = [];
-        const packing: any = [];
         Object.values(data).forEach((i: any) => {
           result.push(...i);
         });
-        const one = Object.values(data).map((i: any) => i[0]);
-        one.forEach((i: any) => {
-          Object.keys(i).forEach((p: any) => {
-            if (
-              String(p)?.includes("Packing") &&
-              !String(p)?.includes("Packing_Unit")
-            ) {
-              packing.push(`${i[p]} ${i["Packing_Unit"]}`);
-            }
-          });
-        });
-        setPaking(
-          packing.map((i: any) => ({
-            key: i,
-            value: i,
-            label: i,
-          }))
-        );
         setFlowerDateOption(
           result.map((i: any) => ({
             key: `${i.Name}`,
-            value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}`,
+            value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}_${i.Packing}${i.Packing_Unit}`,
             label: `${i.Name}_${i.Name_En}_${i.BotanicalName}`,
           }))
         );
@@ -149,6 +136,7 @@ const SetOrderPage: React.FC = () => {
           certificateFee: data.summary.CertificateFee,
           fumigationFee: data.summary.FumigationFee,
         });
+        setMoney(data.summary.Money);
 
         form.setFieldsValue({
           Order: data.orders,
@@ -157,6 +145,7 @@ const SetOrderPage: React.FC = () => {
           packagingFee: data.summary.PackagingFee,
           certificateFee: data.summary.CertificateFee,
           fumigationFee: data.summary.FumigationFee,
+          money: data.summary.Money,
         });
       } catch (error) {
         console.error("Error fetching order data:", error);
@@ -199,37 +188,45 @@ const SetOrderPage: React.FC = () => {
             autoComplete="off"
             layout="vertical"
           >
+            <Form.Item style={{ width: "20%" }} label="单位" name="money">
+              <Select
+                placeholder="请选择单位"
+                options={Option}
+                onChange={(e) => setMoney(e)}
+              />
+            </Form.Item>
             <Form.Item
               style={{ width: "20%" }}
               label="报关服务费"
               name="customFee"
             >
-              <Input placeholder="请输入报关服务费" addonAfter={<>USD</>} />
+              <Input placeholder="请输入报关服务费" addonAfter={<>{money}</>} />
             </Form.Item>
             <Form.Item style={{ width: "20%" }} label="运费" name="shippingFee">
-              <Input placeholder="请输入运费" addonAfter={<>USD</>} />
+              <Input placeholder="请输入运费" addonAfter={<>{money}</>} />
             </Form.Item>
             <Form.Item
               style={{ width: "20%" }}
               label="打包杂费"
               name="packagingFee"
             >
-              <Input placeholder="请输入打包杂费" addonAfter={<>USD</>} />
+              <Input placeholder="请输入打包杂费" addonAfter={<>{money}</>} />
             </Form.Item>
             <Form.Item
               style={{ width: "20%" }}
               label="证书费"
               name="certificateFee"
             >
-              <Input placeholder="请输入证书费" addonAfter={<>USD</>} />
+              <Input placeholder="请输入证书费" addonAfter={<>{money}</>} />
             </Form.Item>
             <Form.Item
               style={{ width: "20%" }}
               label="熏蒸费"
               name="fumigationFee"
             >
-              <Input placeholder="请输入熏蒸费" addonAfter={<>USD</>} />
+              <Input placeholder="请输入熏蒸费" addonAfter={<>{money}</>} />
             </Form.Item>
+
             <Form.List name="Order">
               {(fields, { add, remove }) => (
                 <>
@@ -272,27 +269,9 @@ const SetOrderPage: React.FC = () => {
                         ></Select>
                       </Form.Item>
                       <Form.Item
-                        label="规格"
-                        {...restField}
-                        name={[name, "FlowerPacking"]}
-                      >
-                        <Select
-                          showSearch
-                          filterOption={(input: any, option: any) =>
-                            (option?.label ?? "")
-                              .toLowerCase()
-                              .includes(input.toLowerCase())
-                          }
-                          placeholder="选择花的规格"
-                          style={{ maxWidth: "10rem" }}
-                          options={paking}
-                        ></Select>
-                      </Form.Item>
-                      <Form.Item
                         label="单重"
                         {...restField}
                         name={[name, "FlowerWeight"]}
-                        rules={[{ required: true, message: "花的重量为必填" }]}
                       >
                         <Input
                           style={{ width: "12rem" }}
@@ -304,10 +283,9 @@ const SetOrderPage: React.FC = () => {
                         label="数量"
                         {...restField}
                         name={[name, "Number"]}
-                        rules={[{ required: true, message: "数量为必填" }]}
                       >
                         <Input
-                          style={{ width: "6rem" }}
+                          style={{ width: "9rem" }}
                           placeholder="数量"
                           addonAfter={<>个</>}
                         />
@@ -316,24 +294,22 @@ const SetOrderPage: React.FC = () => {
                         label="进价"
                         {...restField}
                         name={[name, "InPrice"]}
-                        rules={[{ required: true, message: "进价为必填" }]}
                       >
                         <Input
                           style={{ width: "9rem" }}
                           placeholder="进价"
-                          addonAfter={<>USD</>}
+                          addonAfter={<>{money}</>}
                         />
                       </Form.Item>
                       <Form.Item
                         label="售价"
                         {...restField}
                         name={[name, "OutPrice"]}
-                        rules={[{ required: true, message: "售价为必填" }]}
                       >
                         <Input
                           style={{ width: "9rem" }}
                           placeholder="售价"
-                          addonAfter={<>USD</>}
+                          addonAfter={<>{money}</>}
                         />
                       </Form.Item>
                       <Form.Item
@@ -401,6 +377,7 @@ const SetOrderPage: React.FC = () => {
                               title: "均摊售价",
                               dataIndex: "adjustedPrice",
                               key: "adjustedPrice",
+                              width: "4rem",
                             },
                             {
                               title: "总额",
@@ -416,11 +393,12 @@ const SetOrderPage: React.FC = () => {
                           const data = [
                             {
                               key: key,
-                              amount: amount.toFixed(2),
+                              amount: amount.toFixed(2) || "0.00",
                               adjustedPrice: (
-                                (adjustedPrice ? adjustedPrice : outPrice) || 0
+                                (adjustedPrice ? adjustedPrice : outPrice) ||
+                                "0.00"
                               )?.toFixed(2),
-                              totalWeight: totalWeight.toFixed(2),
+                              totalWeight: totalWeight.toFixed(2) || "0.00",
                             },
                           ];
                           return (
@@ -475,6 +453,7 @@ const SetOrderPage: React.FC = () => {
             isModalOpen={isModalOpen}
             setIsModalOpen={setIsModalOpen}
             initialValues={initialValues}
+            money={money}
           />
         </div>
       )}
