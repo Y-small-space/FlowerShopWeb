@@ -199,16 +199,38 @@ const SetOrderPage: React.FC = () => {
               style={{ width: "20%" }}
               label="报关服务费"
               name="customFee"
+              rules={[
+                {
+                  pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                  message: "请输入有效的数字",
+                },
+              ]}
             >
               <Input placeholder="请输入报关服务费" addonAfter={<>{money}</>} />
             </Form.Item>
-            <Form.Item style={{ width: "20%" }} label="运费" name="shippingFee">
+            <Form.Item
+              style={{ width: "20%" }}
+              label="运费"
+              name="shippingFee"
+              rules={[
+                {
+                  pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                  message: "请输入有效的数字",
+                },
+              ]}
+            >
               <Input placeholder="请输入运费" addonAfter={<>{money}</>} />
             </Form.Item>
             <Form.Item
               style={{ width: "20%" }}
               label="打包杂费"
               name="packagingFee"
+              rules={[
+                {
+                  pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                  message: "请输入有效的数字",
+                },
+              ]}
             >
               <Input placeholder="请输入打包杂费" addonAfter={<>{money}</>} />
             </Form.Item>
@@ -216,6 +238,12 @@ const SetOrderPage: React.FC = () => {
               style={{ width: "20%" }}
               label="证书费"
               name="certificateFee"
+              rules={[
+                {
+                  pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                  message: "请输入有效的数字",
+                },
+              ]}
             >
               <Input placeholder="请输入证书费" addonAfter={<>{money}</>} />
             </Form.Item>
@@ -223,6 +251,12 @@ const SetOrderPage: React.FC = () => {
               style={{ width: "20%" }}
               label="熏蒸费"
               name="fumigationFee"
+              rules={[
+                {
+                  pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                  message: "请输入有效的数字",
+                },
+              ]}
             >
               <Input placeholder="请输入熏蒸费" addonAfter={<>{money}</>} />
             </Form.Item>
@@ -283,6 +317,16 @@ const SetOrderPage: React.FC = () => {
                         label="数量"
                         {...restField}
                         name={[name, "Number"]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "数量为必填项",
+                          },
+                          {
+                            pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                            message: "请输入有效的数字",
+                          },
+                        ]}
                       >
                         <Input
                           style={{ width: "9rem" }}
@@ -294,6 +338,12 @@ const SetOrderPage: React.FC = () => {
                         label="进价"
                         {...restField}
                         name={[name, "InPrice"]}
+                        rules={[
+                          {
+                            pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                            message: "请输入有效的数字",
+                          },
+                        ]}
                       >
                         <Input
                           style={{ width: "9rem" }}
@@ -305,6 +355,12 @@ const SetOrderPage: React.FC = () => {
                         label="售价"
                         {...restField}
                         name={[name, "OutPrice"]}
+                        rules={[
+                          {
+                            pattern: /^[0-9]+(\.[0-9]{1,2})?$/,
+                            message: "请输入有效的数字",
+                          },
+                        ]}
                       >
                         <Input
                           style={{ width: "9rem" }}
