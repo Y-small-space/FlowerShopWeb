@@ -67,7 +67,7 @@ const SetOrderPage: React.FC = () => {
         setFlowerDateOption(
           result.map((i: any) => ({
             key: `${i.Name}`,
-            value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}`,
+            value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}_${i.Packing}${i.Packing_Unit}`,
             label: `${i.Name}_${i.Name_En}_${i.BotanicalName}`,
           }))
         );

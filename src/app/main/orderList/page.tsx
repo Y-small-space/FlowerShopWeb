@@ -150,6 +150,7 @@ const OrderList: React.FC = () => {
     label: clientName, // Collapse 面板的标题为客户名
     children: (
       <List
+        size="small"
         dataSource={groupedOrders[clientName]}
         renderItem={(item) => (
           <List.Item>
@@ -190,12 +191,14 @@ const OrderList: React.FC = () => {
       </Button>
       {loading ? (
         <Loading />
-      ) : (
+      ) : collapseItems.length ? (
         <Collapse
           items={collapseItems}
-          defaultActiveKey={["1"]}
           style={{ marginTop: "1rem" }}
+          size="small"
         />
+      ) : (
+        <></>
       )}
     </>
   );

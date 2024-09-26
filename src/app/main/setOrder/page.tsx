@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button, Input, Form, Space, Select, message, Row, Col } from "antd";
 import {
   MinusCircleOutlined,
@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { Text } from "@mantine/core";
 import Loading from "@/app/components/loading";
-import { redirect } from "next/navigation";
+import { throttle } from "lodash";
 
 const now = new Date();
 const year = now.getFullYear();
@@ -55,10 +55,13 @@ const SetOrderPage: React.FC = () => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSaveData = useCallback(throttle(saveData, 2000), [customName]);
+
+  // 修改 onValuesChange 使用节流后的函数
   const onValuesChange = (changedValues: any, allValues: any) => {
-    // 自动保存表单数据
     setSaveStatus("pending"); // 设为等待保存状态
-    saveData(allValues);
+    throttledSaveData(allValues); // 使用节流后的保存函数
   };
 
   const handleClear = () => {
