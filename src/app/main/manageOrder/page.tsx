@@ -394,10 +394,11 @@ const SetOrderPage: React.FC = () => {
                             {
                               key: key,
                               amount: amount?.toFixed(2) || "0.00",
-                              adjustedPrice: (
-                                (adjustedPrice ? adjustedPrice : outPrice) ||
-                                "0.00"
-                              )?.toFixed(2),
+                              adjustedPrice:
+                                (adjustedPrice
+                                  ? adjustedPrice
+                                  : outPrice
+                                )?.toFixed(2) || "0.00",
                               totalWeight: totalWeight?.toFixed(2) || "0.00",
                             },
                           ];
