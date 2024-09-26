@@ -44,11 +44,15 @@ export async function DELETE(request: NextRequest) {
   if (!filePath) {
     return NextResponse.json({ error: 'Missing filePath parameter' }, { status: 400 });
   }
+  console.log(filePath);
+
 
   try {
     await deleteFromGitHub(`DateBase/orders/${filePath}`);
     return NextResponse.json({ message: 'File deleted successfully' });
   } catch (error) {
+    console.log(error);
+
     return NextResponse.json({ error: 'Error deleting file from GitHub' }, { status: 500 });
   }
 }

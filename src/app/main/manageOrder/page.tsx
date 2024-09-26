@@ -393,12 +393,12 @@ const SetOrderPage: React.FC = () => {
                           const data = [
                             {
                               key: key,
-                              amount: amount.toFixed(2) || "0.00",
+                              amount: amount?.toFixed(2) || "0.00",
                               adjustedPrice: (
                                 (adjustedPrice ? adjustedPrice : outPrice) ||
                                 "0.00"
                               )?.toFixed(2),
-                              totalWeight: totalWeight.toFixed(2) || "0.00",
+                              totalWeight: totalWeight?.toFixed(2) || "0.00",
                             },
                           ];
                           return (
