@@ -394,85 +394,88 @@ const SetOrderPage: React.FC = () => {
                             name,
                             "FlowerWeight",
                           ])?.split(" ")[0];
+                          const exg = /^[0-9]+(\.[0-9]{1,2})?$/;
 
-                          const totalWeight =
-                            number && weight ? number * weight : 0;
+                          if (exg.test(outPrice) && exg.test(number)) {
+                            const totalWeight =
+                              number && weight ? number * weight : 0;
 
-                          // 计算每个订单均摊的杂费
-                          const formValues = form.getFieldsValue(); // 获取表单的所有值
-                          const totalMiscFee =
-                            (Number(formValues.customFee) || 0) +
-                            (Number(formValues.shippingFee) || 0) +
-                            (parseInt(formValues.packagingFee) || 0) +
-                            (parseInt(formValues.certificateFee) || 0) +
-                            (parseInt(formValues.fumigationFee) || 0);
+                            // 计算每个订单均摊的杂费
+                            const formValues = form.getFieldsValue(); // 获取表单的所有值
+                            const totalMiscFee =
+                              (Number(formValues.customFee) || 0) +
+                              (Number(formValues.shippingFee) || 0) +
+                              (parseInt(formValues.packagingFee) || 0) +
+                              (parseInt(formValues.certificateFee) || 0) +
+                              (parseInt(formValues.fumigationFee) || 0);
 
-                          const totalNumber = Number(
-                            (formValues.Order || []).reduce(
-                              (acc: number, curr: any) =>
-                                acc + Number(curr?.Number ?? 0),
-                              0
-                            )
-                          );
+                            const totalNumber = Number(
+                              (formValues.Order || []).reduce(
+                                (acc: number, curr: any) =>
+                                  acc + Number(curr?.Number ?? 0),
+                                0
+                              )
+                            );
 
-                          const totalMiscFeePerItem =
-                            totalNumber > 0 ? totalMiscFee / totalNumber : 0;
+                            const totalMiscFeePerItem =
+                              totalNumber > 0 ? totalMiscFee / totalNumber : 0;
 
-                          const adjustedPrice = outPrice
-                            ? Number(outPrice) + totalMiscFeePerItem
-                            : totalMiscFeePerItem;
-                          const amount =
-                            adjustedPrice && number
-                              ? number * adjustedPrice
-                              : number && outPrice
-                              ? number * outPrice
-                              : 0;
+                            const adjustedPrice = outPrice
+                              ? Number(outPrice) + totalMiscFeePerItem
+                              : totalMiscFeePerItem;
+                            const amount =
+                              adjustedPrice && number
+                                ? number * adjustedPrice
+                                : number && outPrice
+                                ? number * outPrice
+                                : 0;
 
-                          const columns = [
-                            {
-                              title: "均摊售价",
-                              dataIndex: "adjustedPrice",
-                              key: "adjustedPrice",
-                              width: "4rem",
-                            },
-                            {
-                              title: "总额",
-                              dataIndex: "amount",
-                              key: "amount",
-                            },
-                            {
-                              title: "总重",
-                              dataIndex: "totalWeight",
-                              key: "totalWeight",
-                            },
-                          ];
-                          const data = [
-                            {
-                              key: key,
-                              amount: amount?.toFixed(2) || "0.00",
-                              adjustedPrice:
-                                (adjustedPrice
-                                  ? adjustedPrice
-                                  : outPrice
-                                )?.toFixed(2) || "0.00",
-                              totalWeight: totalWeight?.toFixed(2) || "0.00",
-                            },
-                          ];
-                          return (
-                            <Table
-                              style={{
-                                transform: "0px -10px",
-                                fontSize: "10px",
-                                backgroundColor: "transparent",
-                              }}
-                              size="small"
-                              columns={columns}
-                              dataSource={data}
-                              pagination={false}
-                              showHeader={false}
-                              bordered
-                            />
-                          );
+                            const columns = [
+                              {
+                                title: "均摊售价",
+                                dataIndex: "adjustedPrice",
+                                key: "adjustedPrice",
+                                width: "4rem",
+                              },
+                              {
+                                title: "总额",
+                                dataIndex: "amount",
+                                key: "amount",
+                              },
+                              {
+                                title: "总重",
+                                dataIndex: "totalWeight",
+                                key: "totalWeight",
+                              },
+                            ];
+                            const data = [
+                              {
+                                key: key,
+                                amount: amount?.toFixed(2) || "0.00",
+                                adjustedPrice:
+                                  (adjustedPrice
+                                    ? adjustedPrice
+                                    : outPrice
+                                  )?.toFixed(2) || "0.00",
+                                totalWeight: totalWeight?.toFixed(2) || "0.00",
+                              },
+                            ];
+                            return (
+                              <Table
+                                style={{
+                                  transform: "0px -10px",
+                                  fontSize: "10px",
+                                  backgroundColor: "transparent",
+                                }}
+                                size="small"
+                                columns={columns}
+                                dataSource={data}
+                                pagination={false}
+                                showHeader={false}
+                                bordered
+                              />
+                            );
+                          }
                         }}
                       </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} />

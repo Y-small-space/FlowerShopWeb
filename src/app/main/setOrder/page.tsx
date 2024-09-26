@@ -155,6 +155,7 @@ const SetOrderPage: React.FC = () => {
             onValuesChange={onValuesChange} // 监听表单变化
             autoComplete="off"
             layout="vertical"
+            onFinish={saveData}
           >
             <Form.List name="Order">
               {(fields, { add, remove }) => (
@@ -212,7 +213,12 @@ const SetOrderPage: React.FC = () => {
               )}
             </Form.List>
             <Form.Item>
-              <Button onClick={() => window.location.reload()}>清空表单</Button>
+              <Button
+                onClick={() => window.location.reload()}
+                htmlType="submit"
+              >
+                清空表单
+              </Button>
             </Form.Item>
           </Form>
         </div>

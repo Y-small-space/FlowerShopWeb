@@ -72,12 +72,11 @@ const OrderList: React.FC = () => {
       if (response.ok) {
         message.success("订单已删除");
         // 重新获取文件列表以刷新页面
-        fetchFileNames("/DateBase/orders");
+        setTimeout(() => window.location.reload(), 1000);
       } else {
         const data = await response.json();
         message.error(`删除失败: ${data.error}`);
       }
-      fetchFileNames("/DateBase/orders");
     } catch (err) {
       message.error("删除订单时出错");
       console.error("Error deleting order:", err);
