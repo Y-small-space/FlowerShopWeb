@@ -5,6 +5,9 @@ import { Text } from "@mantine/core";
 import { Notification } from "@mantine/core";
 import { message } from "antd";
 import Loading from "@/app/components/loading";
+import JSZip from "jszip";
+import { Octokit } from "@octokit/rest";
+const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN }); // 使用 GitHub Token 创建 Octokit 实例
 
 const PushDatePage = () => {
   const [flowerExcel, setFlowerExcel] = useState<File | null>(null);
@@ -46,6 +49,42 @@ const PushDatePage = () => {
     console.log("====================================");
     console.log(response);
     console.log("====================================");
+
+    try {
+      // 将 Excel 文件上传到 GitHub1  ·
+      const flowerExcelData = await flowerExcel.arrayBuffer();
+      await uploadFileToGitHub("DateBase/flawers/flower.xlsx", flowerExcelData);
+
+      // 解压 ZIP 文件
+      const zip = new JSZip();
+      const zipData = await zip.loadAsync(zipFile);
+      const uploadPromises: any = [];
+
+      // 遍历 ZIP 文件中的每个文件
+      zipData.forEach((relativePath, file) => {
+        if (
+          file.dir ||
+          relativePath.startsWith("__MACOSX") ||
+          relativePath.endsWith(".DS_Store")
+        ) {
+          return;
+        }
+
+        // 上传每个文件到 GitHub
+        uploadPromises.push(uploadZipFileToGitHub(file, relativePath));
+      });
+
+      // 执行所有上传操作
+      await Promise.all(uploadPromises);
+
+      message.success("上传成功");
+    } catch (error) {
+      console.error(error);
+      message.error("上传失败");
+    } finally {
+      setLoading(false);
+    }
+
     if (response.status === 200) {
       message.success("上传成功");
     } else {
@@ -54,16 +93,45 @@ const PushDatePage = () => {
 
     setLoading(false);
   };
-  function Demo() {
-    return (
-      <Notification
-        title="上传成功"
-        style={{ width: "30%", float: "right" }}
-        display={display}
-        onClick={() => setDisplay("none")}
-      ></Notification>
-    );
-  }
+
+  // 上传文件到 GitHub 的函数
+  const uploadFileToGitHub = async (path: string, content: ArrayBuffer) => {
+    const base64Content = Buffer.from(content).toString("base64");
+    try {
+      await octokit.rest.repos.createOrUpdateFileContents({
+        owner: "Y-small-space",
+        repo: "FlowerShopWeb",
+        path: path,
+        message: `Upload ${path}`,
+        content: base64Content,
+      });
+    } catch (error) {
+      console.error("Failed to upload to GitHub:", error);
+      throw new Error(`Failed to upload file ${path}`);
+    }
+  };
+
+  // 上传 ZIP 文件中的每个文件
+  const uploadZipFileToGitHub = async (file: any, relativePath: string) => {
+    const fileData = await file.async("nodebuffer");
+    const newFileName = `${relativePath.split("/").pop()}`;
+    const githubPath = `DateBase/flawers/${newFileName}`;
+
+    try {
+      await octokit.rest.repos.createOrUpdateFileContents({
+        owner: "Y-small-space",
+        repo: "FlowerShopWeb",
+        path: githubPath,
+        message: `Upload ${newFileName}`,
+        content: fileData.toString("base64"),
+      });
+      console.log("File uploaded successfully:", githubPath);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw new Error(`Failed to upload file ${githubPath}`);
+    }
+  };
+
   return (
     <div>
       <Text fw={700} size="xl">

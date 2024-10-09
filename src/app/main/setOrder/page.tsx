@@ -64,13 +64,6 @@ const SetOrderPage: React.FC = () => {
     throttledSaveData(allValues); // 使用节流后的保存函数
   };
 
-  const handleClear = () => {
-    form.resetFields(); // 重置表单字段
-    setCustomName("");
-    setDate(`${year}-${month}-${day}`);
-    setSaveStatus("pending"); // 清空表单后状态重置
-  };
-
   useEffect(() => {
     setLoading(true);
     async function fetchFlowerDate() {
@@ -85,7 +78,7 @@ const SetOrderPage: React.FC = () => {
 
         setFlowerDateOption(
           result.map((i: any) => ({
-            key: `${i.Name}`,
+            key: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}_${i.Packing}${i.Packing_Unit}`,
             value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}_${i.Packing}${i.Packing_Unit}`,
             label: `${i.Name}_${i.Name_En}_${i.BotanicalName}`,
           }))

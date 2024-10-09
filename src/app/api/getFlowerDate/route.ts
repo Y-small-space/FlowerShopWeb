@@ -8,7 +8,7 @@ export async function GET() {
   try {
     const response: any = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
       owner: 'Y-small-space',
-      repo: 'FlowerShopWeb',
+      repo: 'DB',
       path: 'DateBase/flawers/flower.xlsx',
     });
     // 解码 base64 内容

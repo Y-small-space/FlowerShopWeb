@@ -3,7 +3,7 @@ import { Octokit } from "@octokit/rest";
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const owner = 'Y-small-space';
-const repo = 'FlowerShopWeb';
+const repo = 'DB';
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);

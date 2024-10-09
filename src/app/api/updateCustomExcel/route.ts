@@ -4,7 +4,7 @@ import * as XLSX from "xlsx";
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const owner = "Y-small-space";
-const repo = "FlowerShopWeb";
+const repo = "DB";
 const filePath = "DateBase/customs/customs.xlsx"; // 文件路径
 
 // 上传或更新 Excel 文件到 GitHub

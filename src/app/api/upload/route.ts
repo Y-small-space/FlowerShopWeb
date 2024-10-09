@@ -7,6 +7,7 @@ import pLimit from 'p-limit'; // 控制并发操作的库
 
 // 创建 Octokit 实例，使用 GitHub Token 进行身份验证
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+
 // 设置并发限制为 1，防止多个请求同时执行
 const limit = pLimit(1);
 
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest) {
   const formData = await parseFormData(request);
   // 从 formData 中获取上传的 Excel 文件和 ZIP 文件
   const flowerExcel = formData['flowerExcel'] as { name: string, data: Buffer } | undefined;
-  const zipFile = formData['zipFile'] as { name: string, data: Buffer } | undefined;
+  const zipFile: any = formData['zipFile'] as { name: string, data: Buffer } | undefined;
 
   // 输出文件信息到控制台，方便调试
   console.log('flowerExcel:', flowerExcel);
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     // 上传 Excel 文件到 GitHub 仓库
     const ExcelRes = await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
       owner: 'Y-small-space', // GitHub 仓库所有者
-      repo: 'FlowerShopWeb', // GitHub 仓库名称
+      repo: 'DB', // GitHub 仓库名称
       path: `DateBase/flawers/flower.xlsx`, // 上传文件的路径
       message: 'Upload flowerExcel', // 提交信息
       content: flowerExcel.data.toString('base64'), // 文件内容以 base64 编码
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
           // 上传文件到 GitHub
           await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
             owner: 'Y-small-space',
-            repo: 'FlowerShopWeb',
+            repo: 'DB',
             path: githubPath,
             message: `Upload ${newFileName}`, // 提交信息
             content: fileData.toString('base64'), // 文件内容以 base64 编码
@@ -90,14 +91,14 @@ export async function POST(request: NextRequest) {
             // 获取已有文件的 SHA 值
             const response = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
               owner: 'Y-small-space',
-              repo: 'FlowerShopWeb',
+              repo: 'DB',
               path: githubPath,
             });
             const existingFileSha: any = (response.data as any).sha;
             // 使用最新的 SHA 值再次尝试更新文件
             await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
               owner: 'Y-small-space',
-              repo: 'FlowerShopWeb',
+              repo: 'DB',
               path: githubPath,
               message: `Update ${newFileName}`,
               content: fileData.toString('base64'),
@@ -135,7 +136,7 @@ async function parseFormData(request: NextRequest) {
     busboy.on('file', (fieldname: any, file: any, filename: any, encoding: any, mimetype: any) => {
       console.log(`File event: fieldname=${fieldname}, filename=${filename}, encoding=${encoding}, mimetype=${mimetype}`);
 
-      const chunks: Buffer[] = [];
+      const chunks: any = [];
       file.on('data', (data: any) => {
         console.log(`Received data chunk of size: ${data.length}`);
         chunks.push(data);
@@ -178,7 +179,7 @@ async function deleteFilesInDirectory(directoryPath: string) {
     // 获取目录下的文件列表
     const response = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
       owner: 'Y-small-space',
-      repo: 'FlowerShopWeb',
+      repo: 'DB',
       path: directoryPath,
     });
 
@@ -192,7 +193,7 @@ async function deleteFilesInDirectory(directoryPath: string) {
           // 删除文件
           const res = await octokit.request('DELETE /repos/{owner}/{repo}/contents/{path}', {
             owner: 'Y-small-space',
-            repo: 'FlowerShopWeb',
+            repo: 'DB',
             path: file.path,
             message: `Delete ${file.path}`,
             sha: file.sha, // 提供文件的 SHA 值以便删除
