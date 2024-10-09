@@ -31,6 +31,8 @@ const SelectModal = (props: any) => {
     props;
   const [loading, setLoading] = useState(false);
 
+  console.log(initialValues);
+
   const addCategoryToFlowers = (flowers: any, categories: any) => {
     return flowers.map((flower: any) => {
       for (const category in categories) {
@@ -121,59 +123,72 @@ const SelectModal = (props: any) => {
       const row = [];
       if (selectedFields.includes("图片")) {
         // 根据 flowerDate 获取图片 URL
-        const imageUrl = `https://raw.githubusercontent.com/Y-small-space/DB/main/DateBase/flawers/${item.FlowerID}.jpg`;
+        const imageUrl1 = `https://raw.githubusercontent.com/Y-small-space/DB/main/DateBase/flawers/${
+          item.FlowerName.split("_")[0]
+        }.jpg`;
+        const imageUrl2 = `https://raw.githubusercontent.com/Y-small-space/DB/main/DateBase/flawers/${
+          item.FlowerName.split("_")[0]
+        }.png`;
+        const imageUrl3 = `https://raw.githubusercontent.com/Y-small-space/DB/main/DateBase/flawers/notfound.png`;
 
-        console.log(imageUrl);
-
+        // 下载图片为 buffer
+        let imageResponse;
         try {
-          // 下载图片为 buffer
-          const imageResponse = await axios.get(imageUrl, {
+          // 尝试下载第一个图片链接
+          imageResponse = await axios.get(imageUrl1, {
             responseType: "arraybuffer",
           });
-
-          // 添加图片到工作簿
-          const imageId = workbook.addImage({
-            buffer: imageResponse.data,
-            extension: "jpeg",
-          });
-          if (selectedFields.includes("箱单号")) row.push(item?.PackageID);
-          row.push(""); // 在图片单元格填充一个空字符串
-          if (selectedFields.includes("名称"))
-            row.push(
-              `${item.FlowerName?.split("_")[1]} ${
-                item.FlowerName?.split("_")[2]
-              }`
-            );
-          if (selectedFields.includes("植物学名"))
-            row.push(`${item.FlowerName?.split("_")[3]}`);
-          if (selectedFields.includes("规格"))
-            row.push(item.FlowerName?.split("_")[4]);
-          if (selectedFields.includes("数量")) row.push(item.Number);
-          if (selectedFields.includes("单价（未处理）"))
-            row.push(parseFloat(item.OutPrice).toFixed(2));
-          if (selectedFields.includes("单价"))
-            row.push(parseFloat(item.AdjustedPrice).toFixed(2));
-          if (selectedFields.includes("单重"))
-            row.push(parseFloat(item.FlowerWeight).toFixed(2));
-          if (selectedFields.includes("重量"))
-            row.push(
-              (parseFloat(item.Number) * parseFloat(item.FlowerWeight)).toFixed(
-                2
-              )
-            );
-          if (selectedFields.includes("总额"))
-            row.push(parseFloat(item.TotalPrice).toFixed(2));
-
-          const addedRow = worksheet.addRow(row);
-          addedRow.height = cellHeightInPoints / 1.34;
-          // 插入图片到当前行的单元格
-          worksheet.addImage(imageId, {
-            tl: { col: 1, row: currentRow - 1 }, // 使用 currentRow - 1 确保图片与数据在同一行
-            ext: { width: cellWidthInPoints, height: cellHeightInPoints }, // 图片尺寸
-          });
         } catch (error) {
-          console.error("图片下载失败:", error);
+          // 第一个图片请求失败，尝试下载第二个图片链接
+          try {
+            imageResponse = await axios.get(imageUrl2, {
+              responseType: "arraybuffer",
+            });
+          } catch (error) {
+            imageResponse = await axios.get(imageUrl3, {
+              responseType: "arraybuffer",
+            });
+          }
         }
+
+        // 添加图片到工作簿
+        const imageId = workbook.addImage({
+          buffer: imageResponse.data,
+          extension: "jpeg",
+        });
+        if (selectedFields.includes("箱单号")) row.push(item?.PackageID);
+        row.push(""); // 在图片单元格填充一个空字符串
+        if (selectedFields.includes("名称"))
+          row.push(
+            `${item.FlowerName?.split("_")[1]} ${
+              item.FlowerName?.split("_")[2]
+            }`
+          );
+        if (selectedFields.includes("植物学名"))
+          row.push(`${item.FlowerName?.split("_")[3]}`);
+        if (selectedFields.includes("规格"))
+          row.push(item.FlowerName?.split("_")[4]);
+        if (selectedFields.includes("数量")) row.push(item.Number);
+        if (selectedFields.includes("单价（未处理）"))
+          row.push(parseFloat(item.OutPrice).toFixed(2));
+        if (selectedFields.includes("单价"))
+          row.push(parseFloat(item.AdjustedPrice).toFixed(2));
+        if (selectedFields.includes("单重"))
+          row.push(parseFloat(item.FlowerWeight).toFixed(2));
+        if (selectedFields.includes("重量"))
+          row.push(
+            (parseFloat(item.Number) * parseFloat(item.FlowerWeight)).toFixed(2)
+          );
+        if (selectedFields.includes("总额"))
+          row.push(parseFloat(item.TotalPrice).toFixed(2));
+
+        const addedRow = worksheet.addRow(row);
+        addedRow.height = cellHeightInPoints / 1.34;
+        // 插入图片到当前行的单元格
+        worksheet.addImage(imageId, {
+          tl: { col: 1, row: currentRow - 1 }, // 使用 currentRow - 1 确保图片与数据在同一行
+          ext: { width: cellWidthInPoints, height: cellHeightInPoints }, // 图片尺寸
+        });
       } else {
         // 继续添加数据列
         if (selectedFields.includes("箱单号")) row.push(item.PackageID);
