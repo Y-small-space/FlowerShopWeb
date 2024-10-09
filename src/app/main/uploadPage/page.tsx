@@ -8,6 +8,7 @@ import Loading from "@/app/components/loading";
 import JSZip from "jszip";
 import { Octokit } from "@octokit/rest";
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN }); // 使用 GitHub Token 创建 Octokit 实例
+import crypto from "crypto";
 
 const PushDatePage = () => {
   const [flowerExcel, setFlowerExcel] = useState<File | null>(null);
@@ -23,6 +24,68 @@ const PushDatePage = () => {
     setZipFile(file);
   };
 
+  // 计算哈希值的函数
+  // function calculateHash(chunk) {
+  //   const hash = crypto.createHash("sha256"); // 使用 sha256 哈希算法
+  //   hash.update(chunk); // 传入切片数据
+  //   return hash.digest("hex"); // 返回计算出的哈希值，使用 'hex' 编码格式
+  // }
+
+  // async function uploadFile(file: any) {
+  //   const chunkSize = 5 * 1024 * 1024; // 5MB 切片大小
+  //   const totalChunks = Math.ceil(file.size / chunkSize); // 计算总的切片数
+
+  //   // 循环遍历每个切片进行上传
+  //   for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+  //     const start = chunkIndex * chunkSize;
+  //     const end = Math.min(file.size, start + chunkSize); // 确保最后一块不超出文件大小
+  //     const chunk = file.slice(start, end); // 获取当前切片
+
+  //     console.log(
+  //       `Uploading chunk ${chunkIndex} from ${start} to ${end} of size ${chunk.size}`
+  //     );
+
+  //     const formData = new FormData();
+  //     formData.append("chunk", chunk); // 可选的附加数据
+  //     const chunkHash = await calculateHash(chunk); // 异步计算哈希
+  //     console.log(`Chunk hash for chunk ${chunkIndex}:`, chunkHash);
+
+  //     const headers = new Headers();
+  //     headers.append("X-Index", encodeURIComponent(chunkIndex.toString()));
+  //     headers.append(
+  //       "X-TotalChunks",
+  //       encodeURIComponent(totalChunks.toString())
+  //     );
+  //     headers.append("X-Filename", encodeURIComponent(file.name));
+  //     headers.append("X-Chunk-Hash", chunkHash);
+
+  //     try {
+  //       // 使用 fetch 上传切片
+  //       const response = await fetch("/api/upload-chunk", {
+  //         method: "POST",
+  //         headers: headers,
+  //         body: formData, // 直接传递切片数据
+  //       });
+
+  //       if (!response.ok) {
+  //         throw new Error(`Failed to upload chunk ${chunkIndex}`);
+  //       }
+
+  //       const result = await response.json();
+  //       console.log(result.message); // 每块切片上传成功后，日志记录
+
+  //       // 你可以在这里更新进度条，比如：
+  //       console.log(
+  //         `Progress: ${Math.round(((chunkIndex + 1) / totalChunks) * 100)}%`
+  //       );
+  //     } catch (error) {
+  //       console.error(`Error uploading chunk ${chunkIndex}:`, error);
+  //       // 可以在这里实现重试逻辑
+  //     }
+  //   }
+
+  //   console.log("All chunks uploaded successfully");
+  // }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -40,6 +103,7 @@ const PushDatePage = () => {
 
     if (zipFile) {
       formData.append("zipFile", zipFile);
+      // await uploadFile(zipFile);
     }
 
     const response = await fetch("/api/upload", {
@@ -50,41 +114,6 @@ const PushDatePage = () => {
     console.log(response);
     console.log("====================================");
 
-    try {
-      // 将 Excel 文件上传到 GitHub1  ·
-      const flowerExcelData = await flowerExcel.arrayBuffer();
-      await uploadFileToGitHub("DateBase/flawers/flower.xlsx", flowerExcelData);
-
-      // 解压 ZIP 文件
-      const zip = new JSZip();
-      const zipData = await zip.loadAsync(zipFile);
-      const uploadPromises: any = [];
-
-      // 遍历 ZIP 文件中的每个文件
-      zipData.forEach((relativePath, file) => {
-        if (
-          file.dir ||
-          relativePath.startsWith("__MACOSX") ||
-          relativePath.endsWith(".DS_Store")
-        ) {
-          return;
-        }
-
-        // 上传每个文件到 GitHub
-        uploadPromises.push(uploadZipFileToGitHub(file, relativePath));
-      });
-
-      // 执行所有上传操作
-      await Promise.all(uploadPromises);
-
-      message.success("上传成功");
-    } catch (error) {
-      console.error(error);
-      message.error("上传失败");
-    } finally {
-      setLoading(false);
-    }
-
     if (response.status === 200) {
       message.success("上传成功");
     } else {
@@ -92,44 +121,6 @@ const PushDatePage = () => {
     }
 
     setLoading(false);
-  };
-
-  // 上传文件到 GitHub 的函数
-  const uploadFileToGitHub = async (path: string, content: ArrayBuffer) => {
-    const base64Content = Buffer.from(content).toString("base64");
-    try {
-      await octokit.rest.repos.createOrUpdateFileContents({
-        owner: "Y-small-space",
-        repo: "FlowerShopWeb",
-        path: path,
-        message: `Upload ${path}`,
-        content: base64Content,
-      });
-    } catch (error) {
-      console.error("Failed to upload to GitHub:", error);
-      throw new Error(`Failed to upload file ${path}`);
-    }
-  };
-
-  // 上传 ZIP 文件中的每个文件
-  const uploadZipFileToGitHub = async (file: any, relativePath: string) => {
-    const fileData = await file.async("nodebuffer");
-    const newFileName = `${relativePath.split("/").pop()}`;
-    const githubPath = `DateBase/flawers/${newFileName}`;
-
-    try {
-      await octokit.rest.repos.createOrUpdateFileContents({
-        owner: "Y-small-space",
-        repo: "FlowerShopWeb",
-        path: githubPath,
-        message: `Upload ${newFileName}`,
-        content: fileData.toString("base64"),
-      });
-      console.log("File uploaded successfully:", githubPath);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      throw new Error(`Failed to upload file ${githubPath}`);
-    }
   };
 
   return (
@@ -181,3 +172,6 @@ const PushDatePage = () => {
 };
 
 export default PushDatePage;
+function calculateHash(chunk: any) {
+  throw new Error("Function not implemented.");
+}

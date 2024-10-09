@@ -56,7 +56,7 @@ export default function MainLayout({
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
-        <NavLink
+        {/* <NavLink
           href="/main/uploadPage"
           label="上传文件"
           rightSection={
@@ -66,8 +66,8 @@ export default function MainLayout({
               className="mantine-rotate-rtl"
             />
           }
-        />
-        <NavLink
+        /> */}
+        {/* <NavLink
           href="#"
           label="订单"
           leftSection={<IconGauge size="1rem" stroke={1.5} />}
@@ -78,10 +78,10 @@ export default function MainLayout({
               className="mantine-rotate-rtl"
             />
           }
-        >
-          <NavLink href="/main/setOrder" label="创建订单" />
-          <NavLink href="/main/orderList" label="订单列表" />
-        </NavLink>
+        > */}
+        <NavLink href="/main/setOrder" label="创建订单" />
+        <NavLink href="/main/orderList" label="订单列表" />
+        {/* </NavLink> */}
       </AppShell.Navbar>
       <AppShell.Main style={{ overflow: "auto" }}>
         <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>

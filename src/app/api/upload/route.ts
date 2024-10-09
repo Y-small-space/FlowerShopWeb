@@ -4,6 +4,8 @@ import Busboy from 'busboy'; // 处理 multipart/form-data 数据的库
 import JSZip from 'jszip'; // 处理 ZIP 文件的库
 import { Readable } from 'stream'; // Node.js 中的 stream 模块，用于处理流数据
 import pLimit from 'p-limit'; // 控制并发操作的库
+import path from "path";
+import fs from "fs";
 
 // 创建 Octokit 实例，使用 GitHub Token 进行身份验证
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
@@ -11,12 +13,15 @@ const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 // 设置并发限制为 1，防止多个请求同时执行
 const limit = pLimit(1);
 
+const uploadDir = path.join(process.cwd(), 'uploads/图片库.zip');
+
 export async function POST(request: NextRequest) {
   // 解析请求体中的 form-data
   const formData = await parseFormData(request);
   // 从 formData 中获取上传的 Excel 文件和 ZIP 文件
   const flowerExcel = formData['flowerExcel'] as { name: string, data: Buffer } | undefined;
   const zipFile: any = formData['zipFile'] as { name: string, data: Buffer } | undefined;
+  // const zipFile: any = await unzipFile(uploadDir);
 
   // 输出文件信息到控制台，方便调试
   console.log('flowerExcel:', flowerExcel);
@@ -138,7 +143,7 @@ async function parseFormData(request: NextRequest) {
 
       const chunks: any = [];
       file.on('data', (data: any) => {
-        console.log(`Received data chunk of size: ${data.length}`);
+        // console.log(`Received data chunk of size: ${data.length}`);
         chunks.push(data);
       });
 
@@ -205,5 +210,38 @@ async function deleteFilesInDirectory(directoryPath: string) {
   } catch (error) {
     // 处理错误
     console.error('Error deleting files:', error);
+  }
+}
+
+async function getFileFromGitHub() {
+  try {
+    const { data }: any = await octokit.repos.getContent({
+      owner: "Y-small-space", // GitHub 仓库所有者
+      repo: "DB", // GitHub 仓库名称
+      path: "DateBase/flower.zip", // 文件上传的路径
+    });
+
+    // GitHub API 返回的文件是 base64 编码的内容
+    const fileContent: any = Buffer.from(data?.content, 'base64');
+
+    // 将文件保存到本地（或进行其他处理）
+    const filePathToSave = path.join(__dirname, 'downloaded.zip');
+    fs.writeFileSync(filePathToSave, fileContent);
+    console.log(`文件已保存到: ${filePathToSave}`);
+
+    return filePathToSave;
+  } catch (error) {
+    console.error('GitHub 文件获取失败:', error);
+    throw error;
+  }
+}
+
+async function unzipFile(zipFilePath: any) {
+  try {
+    const zipData: any = fs.readFileSync(zipFilePath);  // 读取压缩包
+    return zipData
+  } catch (error) {
+    console.error('解压文件时出错:', error);
+    throw error;
   }
 }

@@ -121,7 +121,7 @@ const SelectModal = (props: any) => {
       const row = [];
       if (selectedFields.includes("图片")) {
         // 根据 flowerDate 获取图片 URL
-        const imageUrl = `https://raw.githubusercontent.com/Y-small-space/FlowerShopWeb/main/DateBase/flawers/${item.FlowerID}.jpg`;
+        const imageUrl = `https://raw.githubusercontent.com/Y-small-space/DB/main/DateBase/flawers/${item.FlowerID}.jpg`;
 
         console.log(imageUrl);
 
