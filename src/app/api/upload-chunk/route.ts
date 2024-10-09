@@ -12,17 +12,17 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-function calculateHash(chunk) {
+function calculateHash(chunk: any) {
   const hash = crypto.createHash("sha256"); // 使用 sha256 哈希算法
   hash.update(chunk); // 传入切片数据
   return hash.digest("hex"); // 返回计算出的哈希值，使用 'hex' 编码格式
 }
 
 // 处理上传的切片
-export async function POST(req) {
+export async function POST(req: any) {
   try {
     const buffer = await req.arrayBuffer(); // 获取上传的二进制数据
-    const chunkData = Buffer.from(buffer);
+    const chunkData: any = Buffer.from(buffer);
 
     const index = parseInt(req.headers.get('X-Index') || '0');
     const totalChunks = parseInt(req.headers.get('X-TotalChunks') || '0');
@@ -45,14 +45,14 @@ export async function POST(req) {
     }
 
     return NextResponse.json({ message: 'Chunk uploaded successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error during chunk upload:', error);
     return NextResponse.json({ message: 'Upload failed', error: error.message }, { status: 500 });
   }
 }
 
 // 合并所有切片
-async function mergeChunks(totalChunks) {
+async function mergeChunks(totalChunks: any) {
   const outputFilePath = path.join(uploadDir, `图片库.zip`);
 
   const writeStream = fs.createWriteStream(outputFilePath);
