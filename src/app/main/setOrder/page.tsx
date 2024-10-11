@@ -198,7 +198,18 @@ const SetOrderPage: React.FC = () => {
                   <Form.Item>
                     <Button
                       type="dashed"
-                      onClick={() => add()}
+                      onClick={() => {
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                      }}
                       block
                       icon={<PlusOutlined />}
                     >
