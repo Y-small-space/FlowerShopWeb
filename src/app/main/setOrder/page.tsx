@@ -98,7 +98,7 @@ const SetOrderPage: React.FC = () => {
     if (saveStatus === "success") {
       return "green"; // 保存成功，绿色
     } else if (saveStatus === "failed") {
-      return "gray"; // 保存失败，灰色
+      return "red"; // 保存失败，灰色
     }
     return "orange"; // 正在保存，橙色
   };
