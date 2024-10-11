@@ -159,11 +159,16 @@ const SelectModal = (props: any) => {
         if (selectedFields.includes("箱单号")) row.push(item?.PackageID);
         row.push(""); // 在图片单元格填充一个空字符串
         if (selectedFields.includes("名称"))
-          row.push(
-            `${item.FlowerName?.split("_")[1]} ${
-              item.FlowerName?.split("_")[2]
-            }`
-          );
+          if (item.FlowerName?.split("_")[2] !== "undefined") {
+            row.push(
+              `${item.FlowerName?.split("_")[1]} ${
+                item.FlowerName?.split("_")[2]
+              }`
+            );
+          } else {
+            row.push(`${item.FlowerName?.split("_")[1]}`);
+          }
+
         if (selectedFields.includes("植物学名"))
           row.push(`${item.FlowerName?.split("_")[3]}`);
         if (selectedFields.includes("规格"))
