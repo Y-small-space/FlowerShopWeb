@@ -31,7 +31,7 @@ const SelectModal = (props: any) => {
     props;
   const [loading, setLoading] = useState(false);
 
-  console.log(initialValues);
+  // console.log(initialValues);
 
   const addCategoryToFlowers = (flowers: any, categories: any) => {
     return flowers.map((flower: any) => {
@@ -93,7 +93,7 @@ const SelectModal = (props: any) => {
     ]);
     worksheet.addRow(["", "", "SHIPPING MARKS: N/M"]);
 
-    console.log(money);
+    // console.log(money);
 
     // 定义表头
     const headers = [];
@@ -222,9 +222,9 @@ const SelectModal = (props: any) => {
 
     // 添加尾部信息
     const total = data.map((i: any) => parseFloat(i.TotalPrice));
-    console.log("====================================");
-    console.log(data);
-    console.log("====================================");
+    // console.log("====================================");
+    // console.log(data);
+    // console.log("====================================");
     const weight = data.map(
       (i: any) => parseFloat(i.FlowerWeight) * parseFloat(i.Number)
     );

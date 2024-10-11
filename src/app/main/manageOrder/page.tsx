@@ -51,7 +51,7 @@ const SetOrderPage: React.FC = () => {
       shippingFee,
       Order,
     } = formValue;
-    console.log(formValue);
+    // console.log(formValue);
 
     const sum =
       parseFloat(certificateFee) +

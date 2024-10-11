@@ -74,10 +74,10 @@ const SetOrderPage: React.FC = () => {
         Object.values(data).forEach((i: any) => {
           result.push(...i);
         });
-        console.log(result);
+        const handle = result.filter((i: any) => i.Name);
 
         setFlowerDateOption(
-          result.map((i: any) => ({
+          handle.map((i: any) => ({
             key: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}_${i.Packing}${i.Packing_Unit}`,
             value: `${i.id}_${i.Name}_${i.Name_En}_${i.BotanicalName}_${i.Packing}${i.Packing_Unit}`,
             label: `${i.Name}_${i.Name_En}_${i.BotanicalName}`,
@@ -191,6 +191,17 @@ const SetOrderPage: React.FC = () => {
                         rules={[{ required: true, message: "数量为必填" }]}
                       >
                         <Input style={{ width: "4rem" }} placeholder="数量" />
+                      </Form.Item>
+                      <Form.Item>
+                        <div
+                          style={{
+                            width: "10px",
+                            height: "10px",
+                            borderRadius: "50%",
+                            backgroundColor: getSaveStatusColor(),
+                            marginLeft: "8px",
+                          }}
+                        ></div>
                       </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} />
                     </Space>
