@@ -20,12 +20,6 @@ const plainOptions = [
   "重量",
 ];
 
-const map = {
-  洋桔梗: "洋桔梗 Lisianthus",
-  绣球: "绣球Hydrangeas",
-  非洲菊: "非洲菊Gerbera",
-};
-
 const SelectModal = (props: any) => {
   const [selectValue, setSelectValue] = useState([]);
   const { isModalOpen, setIsModalOpen, initialValues, flowerDate, fee, money } =
@@ -101,7 +95,7 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("箱单号")) headers.push("箱单号");
     if (selectedFields.includes("图片")) headers.push("图片");
     if (selectedFields.includes("名称")) headers.push("名称");
-    headers.push("等级");
+    if (selectedFields.includes("等级")) headers.push("等级");
     if (selectedFields.includes("植物学名")) headers.push("植物学名");
     if (selectedFields.includes("规格")) headers.push("规格");
     if (selectedFields.includes("单价"))
@@ -175,7 +169,7 @@ const SelectModal = (props: any) => {
             row.push(`${item.FlowerName?.split("_")[1]}`);
           }
         }
-        row.push("");
+        if (selectedFields.includes("等级")) row.push("");
         if (selectedFields.includes("植物学名"))
           row.push(`${item.FlowerName?.split("_")[3]}`);
         if (selectedFields.includes("规格"))
@@ -210,7 +204,7 @@ const SelectModal = (props: any) => {
               item.FlowerName?.split("_")[2]
             }`
           );
-        row.push("");
+        if (selectedFields.includes("等级")) row.push("");
         if (selectedFields.includes("植物学名"))
           row.push(`${item.FlowerName?.split("_")[3]}`);
         if (selectedFields.includes("规格"))
@@ -253,8 +247,8 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("等级")) Total.push("");
     if (selectedFields.includes("植物学名")) Total.push("");
     if (selectedFields.includes("规格")) Total.push("");
-    if (selectedFields.includes("数量")) Total.push("");
     if (selectedFields.includes("单价")) Total.push("");
+    if (selectedFields.includes("数量")) Total.push("");
     Total.pop();
     if (selectedFields.includes("总额")) Total.push(total_);
     if (selectedFields.includes("单价（未处理）")) Total.push("");
@@ -262,113 +256,99 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("重量")) Total.push(weight_);
     worksheet.addRow(Total);
 
-    const ShippingFee = [];
-    ShippingFee.push("Freight Cost 运费");
-    if (selectedFields.includes("箱单号")) ShippingFee.push("");
-    if (selectedFields.includes("图片")) ShippingFee.push("");
-    if (selectedFields.includes("名称")) ShippingFee.push("");
-    if (selectedFields.includes("等级")) ShippingFee.push("");
-    if (selectedFields.includes("植物学名")) ShippingFee.push("");
-    if (selectedFields.includes("规格")) ShippingFee.push("");
-    if (selectedFields.includes("单价")) ShippingFee.push("");
-    if (selectedFields.includes("数量")) ShippingFee.push("");
-    // if (selectedFields.includes("单价（未处理）")) ShippingFee.push("");
-    // if (selectedFields.includes("单重")) ShippingFee.push("");
-    // if (selectedFields.includes("重量")) ShippingFee.push("");
-    ShippingFee.pop();
-    ShippingFee.push(fee.shippingFee);
-    worksheet.addRow(ShippingFee);
+    if (selectedFields.includes("总额")) {
+      const ShippingFee = [];
+      ShippingFee.push("Freight Cost 运费");
+      if (selectedFields.includes("箱单号")) ShippingFee.push("");
+      if (selectedFields.includes("图片")) ShippingFee.push("");
+      if (selectedFields.includes("名称")) ShippingFee.push("");
+      if (selectedFields.includes("等级")) ShippingFee.push("");
+      if (selectedFields.includes("植物学名")) ShippingFee.push("");
+      if (selectedFields.includes("规格")) ShippingFee.push("");
+      if (selectedFields.includes("单价")) ShippingFee.push("");
+      if (selectedFields.includes("数量")) ShippingFee.push("");
+      ShippingFee.pop();
+      if (selectedFields.includes("总额")) ShippingFee.push(fee.shippingFee);
+      worksheet.addRow(ShippingFee);
 
-    const CustomFee = [];
-    CustomFee.push("customs declaration service 报关服务费");
-    if (selectedFields.includes("箱单号")) CustomFee.push("");
-    if (selectedFields.includes("图片")) CustomFee.push("");
-    if (selectedFields.includes("名称")) CustomFee.push("");
-    if (selectedFields.includes("植物学名")) CustomFee.push("");
-    if (selectedFields.includes("等级")) CustomFee.push("");
-    if (selectedFields.includes("规格")) CustomFee.push("");
-    if (selectedFields.includes("单价")) CustomFee.push("");
-    if (selectedFields.includes("数量")) CustomFee.push("");
-    // if (selectedFields.includes("单价（未处理）")) CustomFee.push("");
-    // if (selectedFields.includes("单重")) CustomFee.push("");
-    // if (selectedFields.includes("重量")) CustomFee.push("");
-    CustomFee.pop();
-    CustomFee.push(fee.customFee);
-    worksheet.addRow(CustomFee);
+      const CustomFee = [];
+      CustomFee.push("customs declaration service 报关服务费");
+      if (selectedFields.includes("箱单号")) CustomFee.push("");
+      if (selectedFields.includes("图片")) CustomFee.push("");
+      if (selectedFields.includes("名称")) CustomFee.push("");
+      if (selectedFields.includes("植物学名")) CustomFee.push("");
+      if (selectedFields.includes("等级")) CustomFee.push("");
+      if (selectedFields.includes("规格")) CustomFee.push("");
+      if (selectedFields.includes("单价")) CustomFee.push("");
+      if (selectedFields.includes("数量")) CustomFee.push("");
+      CustomFee.pop();
+      if (selectedFields.includes("总额")) CustomFee.push(fee.customFee);
+      worksheet.addRow(CustomFee);
 
-    const PackagingFee = [];
-    PackagingFee.push("Packing 打包杂费");
-    if (selectedFields.includes("箱单号")) PackagingFee.push("");
-    if (selectedFields.includes("图片")) PackagingFee.push("");
-    if (selectedFields.includes("名称")) PackagingFee.push("");
-    if (selectedFields.includes("植物学名")) PackagingFee.push("");
-    if (selectedFields.includes("等级")) PackagingFee.push("");
-    if (selectedFields.includes("规格")) PackagingFee.push("");
-    if (selectedFields.includes("数量")) PackagingFee.push("");
-    if (selectedFields.includes("单价")) PackagingFee.push("");
-    // if (selectedFields.includes("单价（未处理）")) PackagingFee.push("");
-    // if (selectedFields.includes("单重")) PackagingFee.push("");
-    // if (selectedFields.includes("重量")) PackagingFee.push("");
-    PackagingFee.pop();
-    PackagingFee.push(fee.packagingFee);
-    worksheet.addRow(PackagingFee);
+      const PackagingFee = [];
+      PackagingFee.push("Packing 打包杂费");
+      if (selectedFields.includes("箱单号")) PackagingFee.push("");
+      if (selectedFields.includes("图片")) PackagingFee.push("");
+      if (selectedFields.includes("名称")) PackagingFee.push("");
+      if (selectedFields.includes("植物学名")) PackagingFee.push("");
+      if (selectedFields.includes("等级")) PackagingFee.push("");
+      if (selectedFields.includes("规格")) PackagingFee.push("");
+      if (selectedFields.includes("数量")) PackagingFee.push("");
+      if (selectedFields.includes("单价")) PackagingFee.push("");
+      PackagingFee.pop();
+      if (selectedFields.includes("总额")) PackagingFee.push(fee.packagingFee);
+      worksheet.addRow(PackagingFee);
 
-    const CertificateFee = [];
-    CertificateFee.push("certifications 证书费");
-    if (selectedFields.includes("箱单号")) CertificateFee.push("");
-    if (selectedFields.includes("图片")) CertificateFee.push("");
-    if (selectedFields.includes("名称")) CertificateFee.push("");
-    if (selectedFields.includes("植物学名")) CertificateFee.push("");
-    if (selectedFields.includes("等级")) CertificateFee.push("");
-    if (selectedFields.includes("规格")) CertificateFee.push("");
-    if (selectedFields.includes("数量")) CertificateFee.push("");
-    if (selectedFields.includes("单价")) CertificateFee.push("");
-    // if (selectedFields.includes("单价（未处理）")) CertificateFee.push("");
-    // if (selectedFields.includes("单重")) CertificateFee.push("");
-    // if (selectedFields.includes("重量")) CertificateFee.push("");
-    CertificateFee.pop();
-    CertificateFee.push(fee.certificateFee);
-    worksheet.addRow(CertificateFee);
+      const CertificateFee = [];
+      CertificateFee.push("certifications 证书费");
+      if (selectedFields.includes("箱单号")) CertificateFee.push("");
+      if (selectedFields.includes("图片")) CertificateFee.push("");
+      if (selectedFields.includes("名称")) CertificateFee.push("");
+      if (selectedFields.includes("植物学名")) CertificateFee.push("");
+      if (selectedFields.includes("等级")) CertificateFee.push("");
+      if (selectedFields.includes("规格")) CertificateFee.push("");
+      if (selectedFields.includes("数量")) CertificateFee.push("");
+      if (selectedFields.includes("单价")) CertificateFee.push("");
+      CertificateFee.pop();
+      if (selectedFields.includes("总额"))
+        CertificateFee.push(fee.certificateFee);
+      worksheet.addRow(CertificateFee);
 
-    const FumigationFee = [];
-    FumigationFee.push("disinfestation or disinfection treatment 熏蒸费");
-    if (selectedFields.includes("箱单号")) FumigationFee.push("");
-    if (selectedFields.includes("图片")) FumigationFee.push("");
-    if (selectedFields.includes("名称")) FumigationFee.push("");
-    if (selectedFields.includes("植物学名")) FumigationFee.push("");
-    if (selectedFields.includes("等级")) FumigationFee.push("");
-    if (selectedFields.includes("规格")) FumigationFee.push("");
-    if (selectedFields.includes("数量")) FumigationFee.push("");
-    if (selectedFields.includes("单价（未处理）")) FumigationFee.push("");
-    // if (selectedFields.includes("单价")) FumigationFee.push("");
-    // if (selectedFields.includes("单重")) FumigationFee.push("");
-    // if (selectedFields.includes("重量")) FumigationFee.push("");
-    FumigationFee.pop();
-    FumigationFee.push(fee.fumigationFee);
-    worksheet.addRow(FumigationFee);
+      const FumigationFee = [];
+      FumigationFee.push("disinfestation or disinfection treatment 熏蒸费");
+      if (selectedFields.includes("箱单号")) FumigationFee.push("");
+      if (selectedFields.includes("图片")) FumigationFee.push("");
+      if (selectedFields.includes("名称")) FumigationFee.push("");
+      if (selectedFields.includes("植物学名")) FumigationFee.push("");
+      if (selectedFields.includes("等级")) FumigationFee.push("");
+      if (selectedFields.includes("规格")) FumigationFee.push("");
+      if (selectedFields.includes("数量")) FumigationFee.push("");
+      if (selectedFields.includes("单价")) FumigationFee.push("");
+      FumigationFee.pop();
+      if (selectedFields.includes("总额"))
+        FumigationFee.push(fee.fumigationFee);
+      worksheet.addRow(FumigationFee);
 
-    const SUM = [];
-    SUM.push("TOTAL");
-    const sum =
-      parseFloat(fee.customFee) +
-      parseFloat(fee.shippingFee) +
-      parseFloat(fee.packagingFee) +
-      parseFloat(fee.certificateFee) +
-      parseFloat(fee.fumigationFee);
-    if (selectedFields.includes("箱单号")) SUM.push("");
-    if (selectedFields.includes("图片")) SUM.push("");
-    if (selectedFields.includes("名称")) SUM.push("");
-    if (selectedFields.includes("植物学名")) SUM.push("");
-    if (selectedFields.includes("等级")) SUM.push("");
-    if (selectedFields.includes("规格")) SUM.push("");
-    if (selectedFields.includes("数量")) SUM.push("");
-    if (selectedFields.includes("单价（未处理）")) SUM.push("");
-    // if (selectedFields.includes("单价")) SUM.push("");
-    // if (selectedFields.includes("单重")) SUM.push("");
-    // if (selectedFields.includes("重量")) SUM.push("");
-    SUM.pop();
-    SUM.push((sum + parseFloat(total_)).toFixed(2));
-    worksheet.addRow(SUM);
+      const SUM = [];
+      SUM.push("TOTAL");
+      const sum =
+        parseFloat(fee.customFee) +
+        parseFloat(fee.shippingFee) +
+        parseFloat(fee.packagingFee) +
+        parseFloat(fee.certificateFee) +
+        parseFloat(fee.fumigationFee);
+      if (selectedFields.includes("箱单号")) SUM.push("");
+      if (selectedFields.includes("图片")) SUM.push("");
+      if (selectedFields.includes("名称")) SUM.push("");
+      if (selectedFields.includes("植物学名")) SUM.push("");
+      if (selectedFields.includes("等级")) SUM.push("");
+      if (selectedFields.includes("规格")) SUM.push("");
+      if (selectedFields.includes("数量")) SUM.push("");
+      if (selectedFields.includes("单价")) SUM.push("");
+      SUM.pop();
+      SUM.push((sum + parseFloat(total_)).toFixed(2));
+      worksheet.addRow(SUM);
+    }
 
     worksheet.addRow([]);
     worksheet.addRow(["Bank details:"]);
