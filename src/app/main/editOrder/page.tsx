@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button, Input, Form, Space, Select, message, Row, Col } from "antd";
 import {
   MinusCircleOutlined,
@@ -9,6 +9,7 @@ import {
 import { Text } from "@mantine/core";
 import Loading from "@/app/components/loading";
 import { redirect, useSearchParams } from "next/navigation";
+import { throttle } from "lodash";
 
 const now = new Date();
 const year = now.getFullYear();
@@ -25,9 +26,11 @@ const SetOrderPage: React.FC = () => {
   const searchParams = useSearchParams();
   const item = searchParams.get("item");
   const [time, setTime] = useState("");
+  const [saveStatus, setSaveStatus] = useState<
+    "success" | "failed" | "pending"
+  >("pending");
 
   const saveData = async (formValue: any) => {
-    setLoading(true);
     if (!customName) {
       message.error("客户姓名为必填！！！");
       return;
@@ -46,12 +49,23 @@ const SetOrderPage: React.FC = () => {
         cache: "no-store",
       });
       if (response.ok) {
-        message.success("保存成功");
+        setSaveStatus("success"); // 保存成功，设为绿色
+      } else {
+        setSaveStatus("failed"); // 保存失败，设为灰色
       }
     } catch (error: any) {
-      message.error("保存失败", error);
+      setSaveStatus("failed");
+      message.error("自动保存失败");
     }
-    setLoading(false);
+  };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSaveData = useCallback(throttle(saveData, 2000), [customName]);
+
+  // 修改 onValuesChange 使用节流后的函数
+  const onValuesChange = (changedValues: any, allValues: any) => {
+    setSaveStatus("pending"); // 设为等待保存状态
+    throttledSaveData(allValues); // 使用节流后的保存函数
   };
 
   useEffect(() => {
@@ -76,10 +90,19 @@ const SetOrderPage: React.FC = () => {
         setLoading(false);
       }
     }
-    localStorage.setItem("id", "1");
 
     fetchFlowerDate();
   }, []);
+
+  // 显示保存状态的提示灯颜色
+  const getSaveStatusColor = () => {
+    if (saveStatus === "success") {
+      return "green"; // 保存成功，绿色
+    } else if (saveStatus === "failed") {
+      return "red"; // 保存失败，灰色
+    }
+    return "orange"; // 正在保存，橙色
+  };
 
   useEffect(() => {
     async function fetchOrderData() {
@@ -131,10 +154,25 @@ const SetOrderPage: React.FC = () => {
                 onChange={(e) => setDate(e.target.value)}
               />
             </Col>
+            <Col xs={24} sm={12} md={8}>
+              {/* 显示保存状态提示灯 */}
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <span>保存状态：</span>
+                <div
+                  style={{
+                    width: "10px",
+                    height: "10px",
+                    borderRadius: "50%",
+                    backgroundColor: getSaveStatusColor(),
+                    marginLeft: "8px",
+                  }}
+                ></div>
+              </div>
+            </Col>
           </Row>
           <Form
             name="dynamic_form_nest_item"
-            onFinish={saveData}
+            onValuesChange={onValuesChange} // 监听表单变化
             autoComplete="off"
             layout="vertical"
             form={form}
@@ -178,13 +216,35 @@ const SetOrderPage: React.FC = () => {
                       >
                         <Input style={{ width: "4rem" }} placeholder="数量" />
                       </Form.Item>
+                      <Form.Item>
+                        <div
+                          style={{
+                            width: "10px",
+                            height: "10px",
+                            borderRadius: "50%",
+                            backgroundColor: getSaveStatusColor(),
+                            marginLeft: "8px",
+                          }}
+                        ></div>
+                      </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} />
                     </Space>
                   ))}
                   <Form.Item>
                     <Button
                       type="dashed"
-                      onClick={() => add()}
+                      onClick={() => {
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                        add();
+                      }}
                       block
                       icon={<PlusOutlined />}
                     >

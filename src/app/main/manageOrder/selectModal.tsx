@@ -9,14 +9,15 @@ const plainOptions = [
   "箱单号",
   "图片",
   "名称",
+  "等级",
   "植物学名",
   "规格",
-  "数量",
-  "单价（未处理）",
   "单价",
+  "数量",
+  "总额",
+  "单价（未处理）",
   "单重",
   "重量",
-  "总额",
 ];
 
 const map = {
@@ -100,17 +101,18 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("箱单号")) headers.push("箱单号");
     if (selectedFields.includes("图片")) headers.push("图片");
     if (selectedFields.includes("名称")) headers.push("名称");
+    headers.push("等级");
     if (selectedFields.includes("植物学名")) headers.push("植物学名");
     if (selectedFields.includes("规格")) headers.push("规格");
-    if (selectedFields.includes("数量")) headers.push("数量");
-    if (selectedFields.includes("单价（未处理）"))
-      headers.push(`单价（未处理） UNIT PRICE（${money}）`);
     if (selectedFields.includes("单价"))
       headers.push(`单价 UNIT PRICE（${money}）`);
+    if (selectedFields.includes("数量")) headers.push("数量");
+    if (selectedFields.includes("总额")) headers.push(`总额AMOUNT（${money}）`);
+    if (selectedFields.includes("单价（未处理）"))
+      headers.push(`单价（未处理） UNIT PRICE（${money}）`);
     if (selectedFields.includes("单重"))
       headers.push("单重 UNIT WEIGHT（weight/kg）");
     if (selectedFields.includes("重量")) headers.push("重量 Weight（kg）");
-    if (selectedFields.includes("总额")) headers.push(`总额AMOUNT（${money}）`);
 
     // 插入表头
     worksheet.addRow(headers);
@@ -119,6 +121,7 @@ const SelectModal = (props: any) => {
     // 设置数据行的起始行号
     let currentRow = 9; // 数据行从第9行开始
     // 添加数据行
+    console.log(data);
     for (const item of data) {
       const row = [];
       if (selectedFields.includes("图片")) {
@@ -138,16 +141,19 @@ const SelectModal = (props: any) => {
           imageResponse = await axios.get(imageUrl1, {
             responseType: "arraybuffer",
           });
+          console.log(imageUrl1);
         } catch (error) {
           // 第一个图片请求失败，尝试下载第二个图片链接
           try {
             imageResponse = await axios.get(imageUrl2, {
               responseType: "arraybuffer",
             });
+            console.log(imageUrl2);
           } catch (error) {
             imageResponse = await axios.get(imageUrl3, {
               responseType: "arraybuffer",
             });
+            console.log(imageUrl3);
           }
         }
 
@@ -158,7 +164,7 @@ const SelectModal = (props: any) => {
         });
         if (selectedFields.includes("箱单号")) row.push(item?.PackageID);
         row.push(""); // 在图片单元格填充一个空字符串
-        if (selectedFields.includes("名称"))
+        if (selectedFields.includes("名称")) {
           if (item.FlowerName?.split("_")[2] !== "undefined") {
             row.push(
               `${item.FlowerName?.split("_")[1]} ${
@@ -168,24 +174,25 @@ const SelectModal = (props: any) => {
           } else {
             row.push(`${item.FlowerName?.split("_")[1]}`);
           }
-
+        }
+        row.push("");
         if (selectedFields.includes("植物学名"))
           row.push(`${item.FlowerName?.split("_")[3]}`);
         if (selectedFields.includes("规格"))
           row.push(item.FlowerName?.split("_")[4]);
-        if (selectedFields.includes("数量")) row.push(item.Number);
-        if (selectedFields.includes("单价（未处理）"))
-          row.push(parseFloat(item.OutPrice).toFixed(2));
         if (selectedFields.includes("单价"))
           row.push(parseFloat(item.AdjustedPrice).toFixed(2));
+        if (selectedFields.includes("数量")) row.push(item.Number);
+        if (selectedFields.includes("总额"))
+          row.push(parseFloat(item.TotalPrice).toFixed(2));
+        if (selectedFields.includes("单价（未处理）"))
+          row.push(parseFloat(item.OutPrice).toFixed(2));
         if (selectedFields.includes("单重"))
           row.push(parseFloat(item.FlowerWeight).toFixed(2));
         if (selectedFields.includes("重量"))
           row.push(
             (parseFloat(item.Number) * parseFloat(item.FlowerWeight)).toFixed(2)
           );
-        if (selectedFields.includes("总额"))
-          row.push(parseFloat(item.TotalPrice).toFixed(2));
 
         const addedRow = worksheet.addRow(row);
         addedRow.height = cellHeightInPoints / 1.34;
@@ -203,19 +210,20 @@ const SelectModal = (props: any) => {
               item.FlowerName?.split("_")[2]
             }`
           );
+        row.push("");
         if (selectedFields.includes("植物学名"))
           row.push(`${item.FlowerName?.split("_")[3]}`);
         if (selectedFields.includes("规格"))
           row.push(item.FlowerName?.split("_")[4]);
-        if (selectedFields.includes("数量")) row.push(item.Number);
-        if (selectedFields.includes("单价（未处理）")) row.push(item.OutPrice);
         if (selectedFields.includes("单价")) row.push(item.AdjustedPrice);
+        if (selectedFields.includes("数量")) row.push(item.Number);
+        if (selectedFields.includes("总额")) row.push(item.TotalPrice);
+        if (selectedFields.includes("单价（未处理）")) row.push(item.OutPrice);
         if (selectedFields.includes("单重")) row.push(item.FlowerWeight);
         if (selectedFields.includes("重量"))
           row.push(
             (parseFloat(item.Number) * parseFloat(item.FlowerWeight)).toFixed(2)
           );
-        if (selectedFields.includes("总额")) row.push(item.TotalPrice);
 
         // 将当前行数据添加到工作表，并设置行高
         const addedRow = worksheet.addRow(row);
@@ -242,15 +250,16 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("箱单号")) Total.push("");
     if (selectedFields.includes("图片")) Total.push("");
     if (selectedFields.includes("名称")) Total.push("");
+    if (selectedFields.includes("等级")) Total.push("");
     if (selectedFields.includes("植物学名")) Total.push("");
     if (selectedFields.includes("规格")) Total.push("");
     if (selectedFields.includes("数量")) Total.push("");
-    if (selectedFields.includes("单价（未处理）")) Total.push("");
     if (selectedFields.includes("单价")) Total.push("");
-    if (selectedFields.includes("单重")) Total.push("");
     Total.pop();
-    if (selectedFields.includes("重量")) Total.push(weight_);
     if (selectedFields.includes("总额")) Total.push(total_);
+    if (selectedFields.includes("单价（未处理）")) Total.push("");
+    if (selectedFields.includes("单重")) Total.push("");
+    if (selectedFields.includes("重量")) Total.push(weight_);
     worksheet.addRow(Total);
 
     const ShippingFee = [];
@@ -258,13 +267,14 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("箱单号")) ShippingFee.push("");
     if (selectedFields.includes("图片")) ShippingFee.push("");
     if (selectedFields.includes("名称")) ShippingFee.push("");
+    if (selectedFields.includes("等级")) ShippingFee.push("");
     if (selectedFields.includes("植物学名")) ShippingFee.push("");
     if (selectedFields.includes("规格")) ShippingFee.push("");
-    if (selectedFields.includes("数量")) ShippingFee.push("");
-    if (selectedFields.includes("单价（未处理）")) ShippingFee.push("");
     if (selectedFields.includes("单价")) ShippingFee.push("");
-    if (selectedFields.includes("单重")) ShippingFee.push("");
-    if (selectedFields.includes("重量")) ShippingFee.push("");
+    if (selectedFields.includes("数量")) ShippingFee.push("");
+    // if (selectedFields.includes("单价（未处理）")) ShippingFee.push("");
+    // if (selectedFields.includes("单重")) ShippingFee.push("");
+    // if (selectedFields.includes("重量")) ShippingFee.push("");
     ShippingFee.pop();
     ShippingFee.push(fee.shippingFee);
     worksheet.addRow(ShippingFee);
@@ -275,12 +285,13 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("图片")) CustomFee.push("");
     if (selectedFields.includes("名称")) CustomFee.push("");
     if (selectedFields.includes("植物学名")) CustomFee.push("");
+    if (selectedFields.includes("等级")) CustomFee.push("");
     if (selectedFields.includes("规格")) CustomFee.push("");
-    if (selectedFields.includes("数量")) CustomFee.push("");
-    if (selectedFields.includes("单价（未处理）")) CustomFee.push("");
     if (selectedFields.includes("单价")) CustomFee.push("");
-    if (selectedFields.includes("单重")) CustomFee.push("");
-    if (selectedFields.includes("重量")) CustomFee.push("");
+    if (selectedFields.includes("数量")) CustomFee.push("");
+    // if (selectedFields.includes("单价（未处理）")) CustomFee.push("");
+    // if (selectedFields.includes("单重")) CustomFee.push("");
+    // if (selectedFields.includes("重量")) CustomFee.push("");
     CustomFee.pop();
     CustomFee.push(fee.customFee);
     worksheet.addRow(CustomFee);
@@ -291,12 +302,13 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("图片")) PackagingFee.push("");
     if (selectedFields.includes("名称")) PackagingFee.push("");
     if (selectedFields.includes("植物学名")) PackagingFee.push("");
+    if (selectedFields.includes("等级")) PackagingFee.push("");
     if (selectedFields.includes("规格")) PackagingFee.push("");
     if (selectedFields.includes("数量")) PackagingFee.push("");
-    if (selectedFields.includes("单价（未处理）")) PackagingFee.push("");
     if (selectedFields.includes("单价")) PackagingFee.push("");
-    if (selectedFields.includes("单重")) PackagingFee.push("");
-    if (selectedFields.includes("重量")) PackagingFee.push("");
+    // if (selectedFields.includes("单价（未处理）")) PackagingFee.push("");
+    // if (selectedFields.includes("单重")) PackagingFee.push("");
+    // if (selectedFields.includes("重量")) PackagingFee.push("");
     PackagingFee.pop();
     PackagingFee.push(fee.packagingFee);
     worksheet.addRow(PackagingFee);
@@ -307,12 +319,13 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("图片")) CertificateFee.push("");
     if (selectedFields.includes("名称")) CertificateFee.push("");
     if (selectedFields.includes("植物学名")) CertificateFee.push("");
+    if (selectedFields.includes("等级")) CertificateFee.push("");
     if (selectedFields.includes("规格")) CertificateFee.push("");
     if (selectedFields.includes("数量")) CertificateFee.push("");
-    if (selectedFields.includes("单价（未处理）")) CertificateFee.push("");
     if (selectedFields.includes("单价")) CertificateFee.push("");
-    if (selectedFields.includes("单重")) CertificateFee.push("");
-    if (selectedFields.includes("重量")) CertificateFee.push("");
+    // if (selectedFields.includes("单价（未处理）")) CertificateFee.push("");
+    // if (selectedFields.includes("单重")) CertificateFee.push("");
+    // if (selectedFields.includes("重量")) CertificateFee.push("");
     CertificateFee.pop();
     CertificateFee.push(fee.certificateFee);
     worksheet.addRow(CertificateFee);
@@ -323,12 +336,13 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("图片")) FumigationFee.push("");
     if (selectedFields.includes("名称")) FumigationFee.push("");
     if (selectedFields.includes("植物学名")) FumigationFee.push("");
+    if (selectedFields.includes("等级")) FumigationFee.push("");
     if (selectedFields.includes("规格")) FumigationFee.push("");
     if (selectedFields.includes("数量")) FumigationFee.push("");
     if (selectedFields.includes("单价（未处理）")) FumigationFee.push("");
-    if (selectedFields.includes("单价")) FumigationFee.push("");
-    if (selectedFields.includes("单重")) FumigationFee.push("");
-    if (selectedFields.includes("重量")) FumigationFee.push("");
+    // if (selectedFields.includes("单价")) FumigationFee.push("");
+    // if (selectedFields.includes("单重")) FumigationFee.push("");
+    // if (selectedFields.includes("重量")) FumigationFee.push("");
     FumigationFee.pop();
     FumigationFee.push(fee.fumigationFee);
     worksheet.addRow(FumigationFee);
@@ -345,12 +359,13 @@ const SelectModal = (props: any) => {
     if (selectedFields.includes("图片")) SUM.push("");
     if (selectedFields.includes("名称")) SUM.push("");
     if (selectedFields.includes("植物学名")) SUM.push("");
+    if (selectedFields.includes("等级")) SUM.push("");
     if (selectedFields.includes("规格")) SUM.push("");
     if (selectedFields.includes("数量")) SUM.push("");
     if (selectedFields.includes("单价（未处理）")) SUM.push("");
-    if (selectedFields.includes("单价")) SUM.push("");
-    if (selectedFields.includes("单重")) SUM.push("");
-    if (selectedFields.includes("重量")) SUM.push("");
+    // if (selectedFields.includes("单价")) SUM.push("");
+    // if (selectedFields.includes("单重")) SUM.push("");
+    // if (selectedFields.includes("重量")) SUM.push("");
     SUM.pop();
     SUM.push((sum + parseFloat(total_)).toFixed(2));
     worksheet.addRow(SUM);

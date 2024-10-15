@@ -88,7 +88,6 @@ const SetOrderPage: React.FC = () => {
         setLoading(false);
       }
     }
-    localStorage.setItem("id", "1");
 
     fetchFlowerDate();
   }, []);
