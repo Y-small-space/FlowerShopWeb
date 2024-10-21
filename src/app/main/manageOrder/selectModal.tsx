@@ -18,6 +18,8 @@ const plainOptions = [
   "单价（未处理）",
   "单重",
   "重量",
+  "表头",
+  "表尾",
 ];
 
 const SelectModal = (props: any) => {
@@ -67,26 +69,28 @@ const SelectModal = (props: any) => {
     const cellHeightInPoints = 2.9 * 28.35; // 2.9 cm 转换为点
     worksheet.getColumn(2).width = cellWidthInPoints / 7;
 
-    // 添加表头信息
-    worksheet.addRow(["云南恒矩进出口贸易有限公司"]);
-    worksheet.addRow(["YUNNAN HENGJU IMPORT AND EXPORT TRADE CO., LTD"]);
-    worksheet.addRow([
-      "ADDRESS: ROOM 601-1,6F, ARTICLES EXPO CENTER,",
-      "JIANGYUN HOTEL, DOUNAN STREET, CHENGGONG DISTRICT,",
-      "KUNMING, YUNNAN PROVINCE,CHINA",
-    ]);
-    worksheet.addRow(["发票", "INVOICE"]);
-    worksheet.addRow([
-      "TO: FRESH BLOOM FLOWER TRADING LLC",
-      "",
-      "日期 DATE: JUL.25TH,2024",
-    ]);
-    worksheet.addRow([
-      "Address: BUR DUBAI SAIH SHUAIB 2 P1 BLOCK 1OFFICE NO 61 SH 493 BUSINESS DUBAI 50819 AE",
-      "发票号 INVOICE NO:2024C-YJ003",
-      "合同号 CONTRACT NO:2024C-YJ003",
-    ]);
-    worksheet.addRow(["", "", "SHIPPING MARKS: N/M"]);
+    if (selectedFields.includes("表头")) {
+      // 添加表头信息
+      worksheet.addRow(["云南恒矩进出口贸易有限公司"]);
+      worksheet.addRow(["YUNNAN HENGJU IMPORT AND EXPORT TRADE CO., LTD"]);
+      worksheet.addRow([
+        "ADDRESS: ROOM 601-1,6F, ARTICLES EXPO CENTER,",
+        "JIANGYUN HOTEL, DOUNAN STREET, CHENGGONG DISTRICT,",
+        "KUNMING, YUNNAN PROVINCE,CHINA",
+      ]);
+      worksheet.addRow(["发票", "INVOICE"]);
+      worksheet.addRow([
+        "TO: FRESH BLOOM FLOWER TRADING LLC",
+        "",
+        "日期 DATE: JUL.25TH,2024",
+      ]);
+      worksheet.addRow([
+        "Address: BUR DUBAI SAIH SHUAIB 2 P1 BLOCK 1OFFICE NO 61 SH 493 BUSINESS DUBAI 50819 AE",
+        "发票号 INVOICE NO:2024C-YJ003",
+        "合同号 CONTRACT NO:2024C-YJ003",
+      ]);
+      worksheet.addRow(["", "", "SHIPPING MARKS: N/M"]);
+    }
 
     // console.log(money);
 
@@ -110,10 +114,14 @@ const SelectModal = (props: any) => {
 
     // 插入表头
     worksheet.addRow(headers);
-    worksheet.getRow(8).height = 20; // 设置表头行高
+    if (selectedFields.includes("表头")) {
+      worksheet.getRow(8).height = 20; // 设置表头行高
+    } else {
+      worksheet.getRow(1).height = 20; // 设置表头行高
+    }
 
     // 设置数据行的起始行号
-    let currentRow = 9; // 数据行从第9行开始
+    let currentRow = selectedFields.includes("表头") ? 9 : 2; // 数据行从第9行开始
     // 添加数据行
     console.log(data);
     for (const item of data) {
@@ -239,22 +247,24 @@ const SelectModal = (props: any) => {
     const weight_ = weight
       .reduce((a: any, b: any) => parseFloat(a) + parseFloat(b))
       .toFixed(2);
-    const Total = [];
-    Total.push("Sub Total");
-    if (selectedFields.includes("箱单号")) Total.push("");
-    if (selectedFields.includes("图片")) Total.push("");
-    if (selectedFields.includes("名称")) Total.push("");
-    if (selectedFields.includes("等级")) Total.push("");
-    if (selectedFields.includes("植物学名")) Total.push("");
-    if (selectedFields.includes("规格")) Total.push("");
-    if (selectedFields.includes("单价")) Total.push("");
-    if (selectedFields.includes("数量")) Total.push("");
-    Total.pop();
-    if (selectedFields.includes("总额")) Total.push(total_);
-    if (selectedFields.includes("单价（未处理）")) Total.push("");
-    if (selectedFields.includes("单重")) Total.push("");
-    if (selectedFields.includes("重量")) Total.push(weight_);
-    worksheet.addRow(Total);
+    if (selectedFields.includes("总额") || selectedFields.includes("重量")) {
+      const Total = [];
+      Total.push("Sub Total");
+      if (selectedFields.includes("箱单号")) Total.push("");
+      if (selectedFields.includes("图片")) Total.push("");
+      if (selectedFields.includes("名称")) Total.push("");
+      if (selectedFields.includes("等级")) Total.push("");
+      if (selectedFields.includes("植物学名")) Total.push("");
+      if (selectedFields.includes("规格")) Total.push("");
+      if (selectedFields.includes("单价")) Total.push("");
+      if (selectedFields.includes("数量")) Total.push("");
+      Total.pop();
+      if (selectedFields.includes("总额")) Total.push(total_);
+      if (selectedFields.includes("单价（未处理）")) Total.push("");
+      if (selectedFields.includes("单重")) Total.push("");
+      if (selectedFields.includes("重量")) Total.push(weight_);
+      worksheet.addRow(Total);
+    }
 
     if (selectedFields.includes("总额")) {
       const ShippingFee = [];
@@ -349,22 +359,23 @@ const SelectModal = (props: any) => {
       SUM.push((sum + parseFloat(total_)).toFixed(2));
       worksheet.addRow(SUM);
     }
-
-    worksheet.addRow([]);
-    worksheet.addRow(["Bank details:"]);
-    worksheet.addRow([
-      "Company Name: Yunnan Hengju Import and Export Trade co., LTD",
-    ]);
-    worksheet.addRow(["Bank Name: CHINA MERCHANTS BANK, KUNMING BRANCH"]);
-    worksheet.addRow(["A/C No. (美元 USD): 8719 1096 5732 501"]);
-    worksheet.addRow(["SWIFT: CMBCCNBS451"]);
-    worksheet.addRow([
-      "Bank Add: CHONGREN STREET 1, KUNMING CITY, YUNNAN PROVINCE",
-    ]);
+    if (selectedFields.includes("表尾")) {
+      worksheet.addRow([]);
+      worksheet.addRow(["Bank details:"]);
+      worksheet.addRow([
+        "Company Name: Yunnan Hengju Import and Export Trade co., LTD",
+      ]);
+      worksheet.addRow(["Bank Name: CHINA MERCHANTS BANK, KUNMING BRANCH"]);
+      worksheet.addRow(["A/C No. (美元 USD): 8719 1096 5732 501"]);
+      worksheet.addRow(["SWIFT: CMBCCNBS451"]);
+      worksheet.addRow([
+        "Bank Add: CHONGREN STREET 1, KUNMING CITY, YUNNAN PROVINCE",
+      ]);
+    }
 
     // 保存 Excel 文件
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), "export_with_images.xlsx");
+    saveAs(new Blob([buffer]), "Order.xlsx");
     message.success("打印成功！");
     setLoading(false);
   };
