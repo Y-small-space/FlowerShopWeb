@@ -370,13 +370,23 @@ const SetOrderPage: React.FC = () => {
                       </Form.Item>
                       <Form.Item
                         label="均摊售价｜总额｜总重"
-                        shouldUpdate={(prevValues, curValues) =>
-                          prevValues.Order[name]?.Number !==
-                            curValues.Order[name]?.Number ||
-                          prevValues.Order[name]?.OutPrice !==
-                            curValues.Order[name]?.OutPrice ||
-                          prevValues.Order !== curValues.Order
-                        }
+                        shouldUpdate={(prevValues, curValues) => {
+                          return (
+                            prevValues.Order[name]?.Number !==
+                              curValues.Order[name]?.Number ||
+                            prevValues.Order[name]?.OutPrice !==
+                              curValues.Order[name]?.OutPrice ||
+                            prevValues.Order !== curValues.Order ||
+                            prevValues.customFee !== curValues.customFee ||
+                            prevValues.fumigationFee !==
+                              curValues.fumigationFee ||
+                            prevValues.packagingFee !==
+                              curValues.packagingFee ||
+                            prevValues.shippingFee !== curValues.shippingFee ||
+                            prevValues.certificateFee !==
+                              curValues.certificateFee
+                          );
+                        }}
                       >
                         {({ getFieldValue }) => {
                           const number = getFieldValue([
@@ -384,11 +394,8 @@ const SetOrderPage: React.FC = () => {
                             name,
                             "Number",
                           ]);
-                          const outPrice = getFieldValue([
-                            "Order",
-                            name,
-                            "OutPrice",
-                          ]);
+                          const outPrice =
+                            getFieldValue(["Order", name, "OutPrice"]) || 0;
                           const weight = getFieldValue([
                             "Order",
                             name,
