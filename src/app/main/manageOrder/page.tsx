@@ -154,6 +154,12 @@ const SetOrderPage: React.FC = () => {
     fetchOrderData();
   }, [form]);
 
+  const handleKeyDown = (e: any) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // 阻止默认行为
+    }
+  };
+
   return (
     <>
       {loading ? (
@@ -187,6 +193,7 @@ const SetOrderPage: React.FC = () => {
             onFinish={onFinish}
             autoComplete="off"
             layout="vertical"
+            onKeyDown={handleKeyDown}
           >
             <Form.Item style={{ width: "20%" }} label="单位" name="money">
               <Select

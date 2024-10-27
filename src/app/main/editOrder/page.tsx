@@ -126,6 +126,12 @@ const SetOrderPage: React.FC = () => {
     fetchOrderData();
   }, []);
 
+  const handleKeyDown = (e: any) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // 阻止默认行为
+    }
+  };
+
   return (
     <>
       {loading ? (
@@ -176,6 +182,7 @@ const SetOrderPage: React.FC = () => {
             autoComplete="off"
             layout="vertical"
             form={form}
+            onKeyDown={handleKeyDown}
           >
             <Form.List name="Order">
               {(fields, { add, remove }) => (

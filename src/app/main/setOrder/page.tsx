@@ -102,6 +102,12 @@ const SetOrderPage: React.FC = () => {
     return "orange"; // 正在保存，橙色
   };
 
+  const handleKeyDown = (e: any) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // 阻止默认行为
+    }
+  };
+
   return (
     <>
       {loading ? (
@@ -151,6 +157,7 @@ const SetOrderPage: React.FC = () => {
             autoComplete="off"
             layout="vertical"
             onFinish={saveData}
+            onKeyDown={handleKeyDown} // 监听按键事件
           >
             <Form.List name="Order">
               {(fields, { add, remove }) => (
