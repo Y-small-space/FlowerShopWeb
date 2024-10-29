@@ -212,7 +212,7 @@ const SetOrderPage: React.FC = () => {
                               .includes(input.toLowerCase())
                           }
                           placeholder="选择花的名称"
-                          style={{ maxWidth: "10rem" }}
+                          style={{ maxWidth: "20rem" }}
                           options={flowerDateOption}
                         ></Select>
                       </Form.Item>

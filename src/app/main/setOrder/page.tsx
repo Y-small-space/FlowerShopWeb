@@ -16,6 +16,29 @@ const month = now.getMonth() + 1;
 const day = now.getDate();
 const { Option } = Select;
 
+const NameOption = [
+  {
+    key: "Dang Nguyen",
+    value: "Dang Nguyen",
+    label: "Dang Nguyen",
+  },
+  {
+    key: "Nha Thu",
+    value: "Nha Thu",
+    label: "Nha Thu",
+  },
+  {
+    key: "International Ever Green",
+    value: "International Ever Green",
+    label: "International Ever Green",
+  },
+  {
+    key: "Fresh bloom Flowers",
+    value: "Fresh bloom Flowers",
+    label: "Fresh bloom Flowers",
+  },
+];
+
 const SetOrderPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [customName, setCustomName] = useState("");
@@ -74,6 +97,9 @@ const SetOrderPage: React.FC = () => {
         Object.values(data).forEach((i: any) => {
           result.push(...i);
         });
+        console.log("====================================");
+        console.log(result);
+        console.log("====================================");
         const handle = result.filter((i: any) => i.Name);
 
         setFlowerDateOption(
@@ -120,11 +146,12 @@ const SetOrderPage: React.FC = () => {
           <br />
           <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
             <Col xs={24} sm={12} md={8}>
-              <Input
+              <Select
                 size="large"
                 placeholder="客户姓名"
-                prefix={<UserOutlined />}
-                onChange={(e) => setCustomName(e.target.value)}
+                onChange={(e) => setCustomName(e)}
+                options={NameOption}
+                style={{ width: "100%" }}
               />
             </Col>
             <Col xs={24} sm={12} md={8}>
@@ -187,7 +214,7 @@ const SetOrderPage: React.FC = () => {
                               .includes(input.toLowerCase())
                           }
                           placeholder="选择花的名称"
-                          style={{ maxWidth: "10rem" }}
+                          style={{ maxWidth: "20rem" }}
                           options={flowerDateOption}
                         ></Select>
                       </Form.Item>

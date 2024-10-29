@@ -178,6 +178,7 @@ const SetOrderPage: React.FC = () => {
               className="form-input"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
+              disabled
             />
             <Input
               size="large"
@@ -287,7 +288,7 @@ const SetOrderPage: React.FC = () => {
                         name={[name, "PackageID"]}
                       >
                         <Input
-                          style={{ width: "3rem" }}
+                          style={{ width: "8rem" }}
                           placeholder="PackageID"
                         />
                       </Form.Item>
@@ -305,7 +306,7 @@ const SetOrderPage: React.FC = () => {
                               .includes(input.toLowerCase())
                           }
                           placeholder="选择花的名称"
-                          style={{ maxWidth: "10rem" }}
+                          style={{ maxWidth: "20rem" }}
                           options={flowerDateOption}
                         ></Select>
                       </Form.Item>
