@@ -48,8 +48,10 @@ const SetOrderPage: React.FC = () => {
     "success" | "failed" | "pending"
   >("pending");
   const [form] = Form.useForm();
+  const [formDate, setFormDate] = useState();
 
   const saveData = async (formValue: any) => {
+    setSaveStatus("pending"); // 设为等待保存状态
     if (!customName) {
       message.error("客户姓名为必填！！！");
       return;
@@ -83,7 +85,8 @@ const SetOrderPage: React.FC = () => {
 
   // 修改 onValuesChange 使用节流后的函数
   const onValuesChange = (changedValues: any, allValues: any) => {
-    setSaveStatus("pending"); // 设为等待保存状态
+    setFormDate(allValues);
+    console.log(allValues);
     throttledSaveData(allValues); // 使用节流后的保存函数
   };
 
@@ -269,6 +272,14 @@ const SetOrderPage: React.FC = () => {
                 htmlType="submit"
               >
                 清空表单
+              </Button>
+              <Button
+                onClick={() => {
+                  console.log(formDate);
+                  saveData(formDate);
+                }}
+                style={{ marginLeft: "10px" }}>
+                手动提交表单
               </Button>
             </Form.Item>
           </Form>
