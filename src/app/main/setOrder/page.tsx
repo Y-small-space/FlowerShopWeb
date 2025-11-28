@@ -18,11 +18,6 @@ const { Option } = Select;
 
 const NameOption = [
   {
-    key: "Dang Nguyen",
-    value: "Dang Nguyen",
-    label: "Dang Nguyen",
-  },
-  {
     key: "Nha Thu",
     value: "Nha Thu",
     label: "Nha Thu",
@@ -37,6 +32,21 @@ const NameOption = [
     value: "Fresh bloom Flowers",
     label: "Fresh bloom Flowers",
   },
+  {
+    key: "Dang Nguyen48",
+    value: "Dang Nguyen48",
+    label: "Dang Nguyen48",
+  },
+  {
+    key: "Dang Nguyen 195",
+    value: "Dang Nguyen 195",
+    label: "Dang Nguyen 195",
+  },
+  {
+    key: "Nhat 48",
+    value: "Nhat 48",
+    label: "Nhat 48"
+  }
 ];
 
 const SetOrderPage: React.FC = () => {
